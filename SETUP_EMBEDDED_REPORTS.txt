@@ -1,0 +1,14 @@
+TTVHS LEARNING HUB — EMBEDDED TEACHER REPORTS
+
+1. Open the existing Google Sheet: https://docs.google.com/spreadsheets/d/1Ggn1frnZruTljRvx2m2-jNY98oBpIHjet1LGYwAiW0Y/edit
+2. Extensions > Apps Script, replace Code.gs with the supplied Code.gs.
+3. Add an HTML file in Apps Script named TeacherReports (Apps Script adds .html). Paste the contents of TeacherReports.html.
+4. Apps Script Project Settings > Script Properties: add property REPORT_ACCESS_KEY with a unique strong teacher passphrase of at least 12 characters (not a student name, do not share it).
+5. Save. Deploy > Manage deployments > edit the existing Web App deployment > Version: New version > Deploy. Verify the /exec URL stays the same.
+6. Upload index.html, manifest.webmanifest, sw.js and both icons to GitHub or Netlify. Do NOT upload Code.gs, TeacherReports.html or your access code to the public site.
+7. On the published site, open Teacher Reports, enter the access code, select date/section, and view the embedded lists.
+8. Complete a sample lesson on Android, refresh Teacher Reports and verify its completion.
+
+IMPORTANT: The dashboard is shown inside the website using an embedded Google Apps Script page. Some Android browsers or restrictive iframe/privacy settings may block embedded apps. If so, Google-authenticated same-origin backend hosting is needed rather than publishing an unauthenticated read API.
+
+SECURITY: This is a test-only access-code setup, not production-grade student-data authentication. Anyone who learns the code may view reports. For actual school deployment, use school-approved teacher sign-in, access controls, and a student data privacy assessment. The current public site contains student rosters and needs similar protection. The recording endpoint also relies on client-submitted events rather than independent verification.
