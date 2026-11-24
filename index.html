@@ -347,31 +347,96 @@ function updateReaderUI(id,state,message){const p=document.querySelector('[data-
 function endSpeechOnly(){speechToken++;speechLesson=null;speechStarted=false;if(speechAvailable)try{speechSynthesis.cancel()}catch(e){}}
 function stopLessonSpeech(){const old=speechLesson;endSpeechOnly();if(old)updateReaderUI(old,'idle','Reading stopped. No new completion. Read from the beginning to unlock the questions.');}
 function masteryHost(id){return document.querySelector('[data-lesson-id="'+id+'"] [data-mastery-host]');}
-function clearMastery(){if(mastery){const host=masteryHost(mastery.lessonId);if(host){host.hidden=true;host.replaceChildren();}}mastery=null;}
-function sayExplanation(text){if(!speechAvailable)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-PH';u.rate=1;speechSynthesis.speak(u);}catch(e){}}
+function clearMastery(){stopExplanation();if(mastery){const host=masteryHost(mastery.lessonId);if(host){host.hidden=true;host.replaceChildren();}}mastery=null;}
+// Explanation playback must finish naturally before the student may retry.
+let explanationToken=0;
+function stopExplanation(){
+ explanationToken++;
+ if(speechAvailable){try{speechSynthesis.cancel();}catch(e){}}
+}
+function sayExplanation(text, onFinished, onFailure){
+ const token=++explanationToken;
+ if(!speechAvailable){onFailure('Speech playback is not available in this browser.');return;}
+ try{
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='en-PH';u.rate=1;
+  const voices=speechSynthesis.getVoices();
+  const voice=voices.find(v=>/^en-PH/i.test(v.lang))||voices.find(v=>/^en-/i.test(v.lang));
+  if(voice){u.voice=voice;u.lang=voice.lang;}
+  u.onend=()=>{if(token===explanationToken)onFinished();};
+  u.onerror=()=>{if(token===explanationToken)onFailure('Speech was interrupted. Replay the explanation to continue.');};
+  speechSynthesis.speak(u);
+ }catch(e){if(token===explanationToken)onFailure('Unable to play the explanation.');}
+}
 function el(tag,cls,txt){const node=document.createElement(tag);if(cls)node.className=cls;if(txt!==undefined)node.textContent=txt;return node;}
 function beginMastery(id){
  if(!studentContext(id))return;
  mastery={lessonId:id,ctx:studentContext(id),sessionId:crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random(),audioFinishedAt:new Date().toISOString(),index:0,wrong:0,attempts:[],passed:0};
  renderMastery();
 }
+function shuffledOptionIndices(count){
+ const order=Array.from({length:count},(_,i)=>i);
+ // Shuffle every time a question is rendered, including a retry.
+ for(let i=order.length-1;i>0;i--){
+  const j=Math.floor(Math.random()*(i+1));
+  [order[i],order[j]]=[order[j],order[i]];
+ }
+ return order;
+}
 function renderMastery(){
- const m=mastery;if(!m)return;const host=masteryHost(m.lessonId);if(!host)return;host.hidden=false;host.replaceChildren();
+ const m=mastery;if(!m)return;
+ stopExplanation();
+ const host=masteryHost(m.lessonId);if(!host)return;host.hidden=false;host.replaceChildren();
  const qs=lessonQuestions[m.lessonId],q=qs[m.index];
+ const order=shuffledOptionIndices(q.a.length);
  host.append(el('div','kicker','COMPREHENSION CHECK • '+(m.index+1)+' OF 3'));
  host.append(el('div','mastery-heading',q.q));
- const feedback=el('div','mastery-feedback');feedback.hidden=true;const actions=el('div','mastery-actions');let answered=false;
- q.a.forEach((choice,i)=>{
-  const b=el('button','mastery-choice',String.fromCharCode(65+i)+'. '+choice);b.type='button';
+ const feedback=el('div','mastery-feedback');feedback.hidden=true;
+ feedback.setAttribute('aria-live','polite');
+ const actions=el('div','mastery-actions');let answered=false;
+ order.forEach((originalIndex,displayIndex)=>{
+  const choice=q.a[originalIndex];
+  const b=el('button','mastery-choice',String.fromCharCode(65+displayIndex)+'. '+choice);b.type='button';
   b.onclick=()=>{
-   if(answered)return;answered=true;const good=i===q.c;
-   m.attempts.push({questionId:'q'+(m.index+1),selectedAnswer:String.fromCharCode(65+i),correct:good,explanationShown:!good,attemptedAt:new Date().toISOString()});
+   if(answered)return;answered=true;
+   const good=originalIndex===q.c;
+   // Preserve original answer identity, independent of its shuffled position.
+   m.attempts.push({questionId:'q'+(m.index+1),selectedAnswer:String.fromCharCode(65+originalIndex),correct:good,explanationShown:!good,attemptedAt:new Date().toISOString()});
    if(!good)m.wrong++;
-   host.querySelectorAll('.mastery-choice').forEach((btn,j)=>{btn.disabled=true;if(j===q.c)btn.classList.add('correct');if(j===i&&!good)btn.classList.add('wrong');});
+   host.querySelectorAll('.mastery-choice').forEach((btn,k)=>{
+    btn.disabled=true;
+    if(order[k]===q.c)btn.classList.add('correct');
+    if(k===displayIndex&&!good)btn.classList.add('wrong');
+   });
    feedback.hidden=false;feedback.textContent=(good?'✅ Correct! ':'❌ Not quite. ')+q.why;
-   if(!good)sayExplanation('Let us learn why. '+q.why);
-   const next=el('button','btn',good?(m.index===2?'Finish and record →':'Next question →'):'Try again →');
-   next.onclick=()=>{try{speechSynthesis.cancel()}catch(e){};if(!good){renderMastery();return;}m.passed++;if(m.index<2){m.index++;renderMastery()}else finishMastery();};actions.append(next);
+   const next=el('button','btn',good?(m.index===2?'Finish and record →':'Next question →'):'🔊 Listening…');
+   next.type='button';
+   next.disabled=!good;
+   next.onclick=()=>{
+    if(next.disabled||mastery!==m)return;
+    stopExplanation();
+    if(!good){renderMastery();return;}
+    m.passed++;
+    if(m.index<2){m.index++;renderMastery();}else finishMastery();
+   };
+   actions.append(next);
+   if(!good){
+    const speechStatus=el('div','muted','Please listen to the complete explanation before trying again.');
+    speechStatus.style.marginTop='10px';actions.append(speechStatus);
+    const replay=el('button','btn ghost','🔊 Replay explanation');
+    replay.type='button';replay.hidden=true;actions.append(replay);
+    const speak=()=>{
+     next.disabled=true;next.textContent='🔊 Listening…';
+     replay.hidden=true;
+     speechStatus.textContent='Please listen to the complete explanation before trying again.';
+     sayExplanation('Let us learn why. '+q.why,
+      ()=>{if(mastery!==m)return;next.disabled=false;next.textContent='Try again →';speechStatus.textContent='✅ Explanation finished. You can try again now.';},
+      (error)=>{if(mastery!==m)return;next.disabled=true;replay.hidden=false;speechStatus.textContent=error+' Tap Replay explanation.';});
+    };
+    replay.onclick=speak;
+    speak();
+   }
   };
   host.append(b);
  });
@@ -414,7 +479,7 @@ function startLessonSpeech(id){
 function pauseOrResume(id){if(speechLesson!==id)return;try{if(speechSynthesis.paused){speechSynthesis.resume();updateReaderUI(id,'playing','🔊 Resumed.');}else{speechSynthesis.pause();updateReaderUI(id,'paused','⏸ Paused.');}}catch(e){stopLessonSpeech();}}
 function onLessonNavigation(name){if(speechLesson&&speechLesson!==name)stopLessonSpeech();if(mastery&&mastery.lessonId!==name)clearMastery();if(document.querySelector('[data-lesson-id="'+name+'"]'))updateCompletion(name);}
 for(const panel of document.querySelectorAll('.reader-shell')){const id=panel.dataset.lessonId;panel.querySelector('[data-reader-action="play"]').addEventListener('click',()=>startLessonSpeech(id));panel.querySelector('[data-reader-action="pause"]').addEventListener('click',()=>pauseOrResume(id));panel.querySelector('[data-reader-action="stop"]').addEventListener('click',stopLessonSpeech);if(!speechAvailable){panel.querySelectorAll('[data-reader-action]').forEach(b=>b.disabled=true);}}
-document.addEventListener('visibilitychange',()=>{if(document.hidden){if(speechLesson)stopLessonSpeech();if(mastery)clearMastery();}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){if(speechLesson)stopLessonSpeech();if(mastery)clearMastery();else stopExplanation();}});
 window.addEventListener('pagehide',()=>{stopLessonSpeech();clearMastery();});
 
 showPage();
