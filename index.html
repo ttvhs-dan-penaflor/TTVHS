@@ -20,12 +20,19 @@
 .lesson-status{font-weight:750;color:#225a64}
 .reader-shell .notice{margin-top:8px}
 @media(max-width:550px){.reader-shell{padding:18px}.reader-controls .btn{flex:1;justify-content:center}}
+
+/* Universal back navigation */
+.page-back-row{display:flex;align-items:center;justify-content:flex-start;margin:18px 0 10px}
+.page-back-btn{display:inline-flex;align-items:center;gap:9px;border:1px solid #bcdbe0;background:#e8f6f6;color:#065f69;padding:11px 18px;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;min-height:45px}
+.page-back-btn:hover{background:#d3eeee}.page-back-btn:focus-visible{outline:3px solid #ed9f2e;outline-offset:2px}
+.page-back-bottom{margin-top:26px}
+@media(max-width:550px){.page-back-btn{font-size:14px;padding:10px 16px}}
 </style><link rel="manifest" href="./manifest.webmanifest"><meta name="theme-color" content="#103e58"><meta name="apple-mobile-web-app-capable" content="yes"><link rel="apple-touch-icon" href="./icon-192.png"></head><body>
 <header class="top"><div class="bar"><a href="#home" class="brand"><span class="mark">🎓</span><span>TTVHS Learning Hub<small>EXPLORE • LEARN • PRACTICE • EXCEL</small></span></a><nav class="nav" aria-label="Main navigation"><a href="#home" data-nav="home">Home</a><a href="#teachers" data-nav="teachers">Teachers</a></nav><button type="button" id="installAppBtn" class="install-btn">📲 Add to Home Screen</button></div></header>
 <main>
 <div id="home" class="page"><div class="hero"><div class="wrap hero-grid"><div><div class="eyebrow">Tukuran Technical–Vocational High School</div><h1>TTVHS Learning Hub</h1><p>Explore • Learn • Practice • Excel</p><p>Your digital space for lessons, classroom activities, and interactive assessments across subjects and grade levels.</p><a class="btn light" href="#teachers">Explore Learning Areas →</a></div><div class="hero-art">📚<small>One hub. More ways to learn.</small></div></div></div><section class="section"><div class="wrap"><div class="kicker">Learning areas</div><h2>Choose your teacher</h2><p class="intro">Start with Grade 10 Aquaculture – Fish Capture, Grade 10 Aquaculture – Fish Culture, and Grade 11 Aquaculture NC II. More subjects can be added later.</p><div class="cards"><article class="card"><div class="tile">🐟</div><h3>Fisheries Learning Areas</h3><p>Grade 10 Aquaculture – Fish Capture, Grade 10 Aquaculture – Fish Culture, and Grade 11 Aquaculture NC II, with separate learning sections.</p><a class="btn" href="#teachers">View Learning Areas →</a></article><article class="card"><div class="tile blue">🧠</div><h3>AI Literacy</h3><p>Reserved for future AI Literacy lessons and student activities.</p><div class="tag">Coming later</div></article><article class="card"><div class="tile blue">📚</div><h3>More Subjects</h3><p>Add other TLE specializations and grade levels without changing the website title.</p><div class="tag">Expandable</div></article></div></div></section></div>
 <div id="teachers" class="page" hidden><section class="section"><div class="wrap"><div class="kicker">Step 1 • Teacher</div><h2>Choose Your Teacher</h2><p class="intro">Start by selecting the teacher assigned to your subject.</p><div class="cards two"><article class="card"><div class="tile">👩‍🏫</div><h3>Joy V. Penaflor</h3><p>Grade 10 • Aquaculture (Fish Culture and Fish Capture)</p><button class="btn" onclick="selectTeacher('joy')">Continue →</button></article><article class="card"><div class="tile blue">👨‍🏫</div><h3>Dan Aeshly Joel B. Penaflor</h3><p>Grade 11 • Aquaculture NC II<br>Grade 7 • MAPEH</p><button class="btn" onclick="selectTeacher('dan')">Continue →</button></article></div></div></section></div>
-<div id="terms" class="page" hidden><section class="section"><div class="wrap"><div class="crumbs"><a href="#teachers">Teachers</a> › Terms</div><div class="kicker">Step 2 • Term</div><h2>Choose Your Term</h2><p id="teacherPrompt" class="intro"></p><div class="cards two"><article class="card"><div class="tile">📅</div><h3>Term 2</h3><p>School Year 2026–2027 • Fish Culture, Aquaculture NC II, and MAPEH</p><button class="btn" onclick="selectTerm('Term 2')">Open Term 2 →</button></article><article class="card" id="term3Card"><div class="tile blue">🎣</div><h3>Term 3</h3><p>School Year 2026–2027 • Grade 10 Aquaculture (Fish Capture)</p><button class="btn" onclick="selectTerm('Term 3')">Open Term 3 →</button></article></div></div></section></div>
+<div id="terms" class="page" hidden><section class="section"><div class="wrap"><div class="crumbs"><a href="#teachers">Teachers</a> › Terms</div><div class="kicker">Step 2 • Term</div><h2>Choose Your Term</h2><p id="teacherPrompt" class="intro"></p><div class="cards two"><article class="card"><div class="tile">📅</div><h3>Term 2</h3><button class="btn" onclick="selectTerm('Term 2')">Open Term 2 →</button></article><article class="card" id="term3Card"><div class="tile blue">🎣</div><h3>Term 3</h3><button class="btn" onclick="selectTerm('Term 3')">Open Term 3 →</button></article></div></div></section></div>
 <div id="subjects" class="page" hidden><section class="section"><div class="wrap"><div class="crumbs"><a href="#teachers">Teachers</a> › <a href="#terms">Terms</a> › Subjects</div><div class="kicker">Step 3 • Subject</div><h2 id="subjectsTitle">Choose Your Subject</h2><p class="intro" id="subjectsIntro">Choose your teacher and term first.</p><div class="cards" id="subjectCards"></div></div></section></div>
 <div id="sections10capture" class="page" hidden><section class="section"><div class="wrap"><div class="crumbs"><a href="#subjects">Subjects</a> › Grade 10 • Fish Capture › Sections</div><div class="kicker">Choose your class section</div><h2>Grade 10 – Aquaculture (Fish Capture)</h2><p class="intro">Select your section before opening the learning materials.</p><div class="cards"><article class="card"><div class="tile blue">📘</div><div class="tag">Grade 10</div><h3>Dove</h3><p>35 students registered. Select your name to enter the learning area.</p><button class="btn" onclick="openGrade10Section('capture','Dove')">Open Dove →</button></article><article class="card"><div class="tile blue">🦅</div><div class="tag">Grade 10</div><h3>Eagle</h3><p>44 students registered. Select your name to enter the learning area.</p><button class="btn" onclick="openGrade10Section('capture','Eagle')">Open Eagle →</button></article><article class="card"><div class="tile blue">📘</div><div class="tag">Grade 10</div><h3>Kestrel</h3><p>32 students registered. Select your name to enter the learning area.</p><button class="btn" onclick="openGrade10Section('capture','Kestrel')">Open Kestrel →</button></article><article class="card"><div class="tile blue">📘</div><div class="tag">Grade 10</div><h3>Kingfisher</h3><p>32 students registered. Select your name to enter the learning area.</p><button class="btn" onclick="openGrade10Section('capture','Kingfisher')">Open Kingfisher →</button></article><article class="card"><div class="tile blue">📘</div><div class="tag">Grade 10</div><h3>Raven</h3><p>30 students registered. Select your name to enter the learning area.</p><button class="btn" onclick="openGrade10Section('capture','Raven')">Open Raven →</button></article></div><p><a class="btn ghost" href="#subjects">← Back to Subjects</a></p></div></section></div>
 <div id="sections10culture" class="page" hidden><section class="section"><div class="wrap"><div class="crumbs"><a href="#subjects">Subjects</a> › Grade 10 • Fish Culture › Sections</div><div class="kicker">Choose your class section</div><h2>Grade 10 – Aquaculture (Fish Culture)</h2><p class="intro">Select your section before opening the learning materials.</p><div class="cards"><article class="card"><div class="tile blue">📘</div><div class="tag">Grade 10</div><h3>Dove</h3><p>35 students registered. Select your name to enter the learning area.</p><button class="btn" onclick="openGrade10Section('culture','Dove')">Open Dove →</button></article><article class="card"><div class="tile blue">🦅</div><div class="tag">Grade 10</div><h3>Eagle</h3><p>44 students registered. Select your name to enter the learning area.</p><button class="btn" onclick="openGrade10Section('culture','Eagle')">Open Eagle →</button></article><article class="card"><div class="tile blue">📘</div><div class="tag">Grade 10</div><h3>Kestrel</h3><p>32 students registered. Select your name to enter the learning area.</p><button class="btn" onclick="openGrade10Section('culture','Kestrel')">Open Kestrel →</button></article><article class="card"><div class="tile blue">📘</div><div class="tag">Grade 10</div><h3>Kingfisher</h3><p>32 students registered. Select your name to enter the learning area.</p><button class="btn" onclick="openGrade10Section('culture','Kingfisher')">Open Kingfisher →</button></article><article class="card"><div class="tile blue">📘</div><div class="tag">Grade 10</div><h3>Raven</h3><p>30 students registered. Select your name to enter the learning area.</p><button class="btn" onclick="openGrade10Section('culture','Raven')">Open Raven →</button></article></div><p><a class="btn ghost" href="#subjects">← Back to Subjects</a></p></div></section></div>
@@ -175,6 +182,44 @@ function filterOtherRoster(grade){const q=document.getElementById('find'+grade).
 function showOtherBanner(){document.getElementById('otherStudentBanner')?.remove();const page=location.hash.slice(1);if(!currentStudent||!['g11','g11lesson','g11activity','g11quiz','g7'].includes(page)||currentStudent.grade==='10')return;
 const host=document.getElementById(page)?.querySelector('.wrap');if(!host)return;const b=document.createElement('div');b.className='notice';b.id='otherStudentBanner';b.style.margin='0 0 20px';const label=document.createElement('strong');label.textContent=currentStudent.term+' • '+currentStudent.section+' • '+currentStudent.name;const btn=document.createElement('button');btn.className='btn ghost';btn.textContent='Switch student';btn.style.marginLeft='12px';btn.onclick=()=>{const grade=currentStudent.grade;currentStudent=null;location.hash='student'+grade;showPage();};b.append(label,btn);host.prepend(b);}
 const pages=[...document.querySelectorAll('.page')];
+const pageTrail=[];
+let navigatingBack=false;
+function parentPage(name){
+ if(name==='teachers')return 'home';
+ if(name==='terms')return 'teachers';
+ if(name==='subjects')return 'terms';
+ if(name.startsWith('sections'))return 'subjects';
+ if(name.startsWith('student10'))return 'sections10'+name.slice('student10'.length);
+ if(name==='student11')return 'sections11';
+ if(name==='student7')return 'sections7';
+ if(name.startsWith('g10culture')){
+  if(name==='g10culture')return 'student10culture';
+  return 'g10culture';
+ }
+ if(name.startsWith('g10'))return name==='g10'?'student10capture':'g10';
+ if(name.startsWith('g11'))return name==='g11'?'student11':'g11';
+ if(name==='g7')return 'student7';
+ return 'home';
+}
+function goBackInHub(){
+ const current=location.hash.slice(1)||'home';
+ const previous=pageTrail.length>1?pageTrail[pageTrail.length-2]:null;
+ const target=previous&&previous!==current?previous:parentPage(current);
+ navigatingBack=Boolean(previous&&previous!==current);
+ if(target===current){navigatingBack=false;return;}
+ location.hash=target;
+}
+function addUniversalBackButtons(){
+ pages.filter(p=>p.id!=='home').forEach(page=>{
+  const wrap=page.querySelector('section .wrap')||page.querySelector('.wrap');
+  if(!wrap)return;
+  const top=document.createElement('div');top.className='page-back-row';
+  const btn=document.createElement('button');btn.type='button';btn.className='page-back-btn';btn.textContent='← Back';btn.setAttribute('aria-label','Go back to previous page');btn.addEventListener('click',goBackInHub);
+  top.append(btn);wrap.prepend(top);
+  const bottom=top.cloneNode(true);bottom.classList.add('page-back-bottom');bottom.querySelector('button').addEventListener('click',goBackInHub);wrap.append(bottom);
+ });
+}
+addUniversalBackButtons();
 function showPage(){
   let name=location.hash.slice(1)||'home';
   if(name==='aquaculture'){location.replace('#teachers');return;}
@@ -193,6 +238,14 @@ function showPage(){
   }
   if(name.startsWith('student10')){ selectedArea=name.replace('student10','');renderRoster(selectedArea); }
   if(name==='student11'||name==='student7')renderOtherRoster(name.slice(7));
+  if(navigatingBack){
+    if(pageTrail.length>1)pageTrail.pop();
+    navigatingBack=false;
+    if(pageTrail[pageTrail.length-1]!==name)pageTrail.push(name);
+  }else if(pageTrail[pageTrail.length-1]!==name){
+    pageTrail.push(name);
+    if(pageTrail.length>40)pageTrail.shift();
+  }
   pages.forEach(p=>p.hidden=p.id!==name);
   document.querySelectorAll('[data-nav]').forEach(a=>{let active=a.dataset.nav===name||(a.dataset.nav==='teachers'&&name!=='home');a.classList.toggle('active',active);if(active)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
   document.querySelectorAll('.tabs a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+name));
