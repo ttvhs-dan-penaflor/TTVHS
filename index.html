@@ -328,87 +328,45 @@ if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){window.a
 /* Reading + mastery testing. For CLASSROOM TEST use only: name picking is not authentication.
    Set this URL ONLY after deploying Code.gs as an Apps Script Web App. */
 const RECORDING_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyp89_ghKKZcyBjINIcmSyw-xTwc8vM8lbiBt0ZIBsbt1mhXIVEYfHL7sVZba30HsJ2aA/exec'; // paste https://script.google.com/macros/s/.../exec here
-// Server-confirmed student session gateway. No credit is granted before acknowledgment.
-let hubGateFrame=null,hubGateReady=false,hubGatePending=new Map(),hubGateCounter=0;
-let hubGateStudent=null,hubGateToken='',hubTeacherToken='',hubBlockedStudent=null,hubTyped='';
+// Google Apps Script bridge for confirmed lesson recording only. No name restriction or teacher override.
+let hubGateFrame=null,hubGateReady=false,hubGatePending=new Map(),hubGateCounter=0,hubBridgeWindow=null,hubBridgeOrigin=null;
 function hubGateway(){
  if(hubGateFrame)return;
- const nonce=crypto.randomUUID();hubGateway.nonce=nonce;
- const frame=document.createElement('iframe');frame.title='Student access verification';frame.hidden=true;
+ const nonce=crypto.randomUUID?crypto.randomUUID():String(Date.now())+'-'+Math.random();hubGateway.nonce=nonce;
+ const frame=document.createElement('iframe');frame.title='Learning progress recorder';frame.hidden=true;
  frame.style.display='none';frame.src=RECORDING_WEB_APP_URL+'?view=access&origin='+encodeURIComponent(location.origin)+'&nonce='+encodeURIComponent(nonce);
  hubGateFrame=frame;document.body.append(frame);
 }
 window.addEventListener('message',event=>{
- if(!hubGateFrame||event.source!==hubGateFrame.contentWindow||!event.data||event.data.channel!=='ttvhs-gate'||event.data.nonce!==hubGateway.nonce)return;
- if(event.data.event==='ready'){hubGateReady=true;return;}
+ if(!hubGateFrame||!event.source||!event.data||event.data.channel!=='ttvhs-gate'||event.data.nonce!==hubGateway.nonce)return;
+ if(event.data.event==='ready'){
+  if(!/^https:\/\/[a-z0-9.-]*googleusercontent\.com$/i.test(event.origin))return;
+  hubBridgeWindow=event.source;hubBridgeOrigin=event.origin;hubGateReady=true;return;
+ }
+ if(event.source!==hubBridgeWindow||event.origin!==hubBridgeOrigin)return;
  if(event.data.event==='reply'){
-  const p=hubGatePending.get(event.data.id);if(p){hubGatePending.delete(event.data.id);p(event.data.result);}
+  const done=hubGatePending.get(event.data.id);if(done){hubGatePending.delete(event.data.id);done(event.data.result);}
  }
 });
 function gateCall(action,request){
  hubGateway();return new Promise(resolve=>{
-  const id=++hubGateCounter;
-  let attempts=0;
+  const id=++hubGateCounter;let attempts=0;
   const send=()=>{
-   if(hubGateReady){hubGatePending.set(id,resolve);hubGateFrame.contentWindow.postMessage({channel:'ttvhs-gate',nonce:hubGateway.nonce,id,action,...request},'*');setTimeout(()=>{if(hubGatePending.has(id)){hubGatePending.delete(id);resolve({ok:false,error:'Verification request timed out'});}},12000);return;}
-   if(attempts++>65){resolve({ok:false,error:'Unable to connect to learning recorder'});return;}
+   if(hubGateReady){
+    hubGatePending.set(id,resolve);
+    try{hubBridgeWindow.postMessage({channel:'ttvhs-gate',nonce:hubGateway.nonce,id,action,...request},hubBridgeOrigin);}
+    catch(e){hubGatePending.delete(id);resolve({ok:false,error:'Recorder connection error'});return;}
+    setTimeout(()=>{if(hubGatePending.has(id)){hubGatePending.delete(id);resolve({ok:false,error:'Recorder response timed out'});}},15000);
+    return;
+   }
+   if(attempts++>95){resolve({ok:false,error:'Unable to connect to lesson recorder'});return;}
    setTimeout(send,150);
   };send();
  });
 }
-function gateStudentPayload(student){
- return {deviceId:browserRegistrationId(),studentId:[student.grade,student.section,student.name].join('|'),studentName:student.name,gradeLevel:student.grade,section:student.section,teacher:student.teacher,term:student.term,subject:student.grade==='10'?(student.area==='culture'?'Aquaculture - Fish Culture':'Aquaculture - Fish Capture'):(student.grade==='11'?'Aquaculture NC II':'MAPEH'),overrideToken:hubTeacherToken};
-}
-const hubNotice=document.createElement('div');hubNotice.id='hub-gate-notice';hubNotice.hidden=true;
-hubNotice.style.cssText='position:fixed;z-index:1000;inset:0;background:#123a50ba;display:grid;place-items:center;padding:25px';
-const gateHiddenStyle=document.createElement('style');gateHiddenStyle.textContent='#hub-gate-notice[hidden]{display:none!important}';document.head.append(gateHiddenStyle);
-hubNotice.innerHTML='<section style="background:white;border-radius:17px;max-width:430px;width:100%;padding:26px;color:#17364a"><h2 style="margin-top:0">Please Try Again</h2><p>We couldn\'t start your learning session at this time. Please try again later or contact your teacher for assistance.</p><button type="button" id="hub-notice-close" class="btn">Back to Student List</button><input type="password" id="hub-hidden-keyboard" autocomplete="off" inputmode="numeric" aria-label="Teacher authorization" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px" /></section>';
-document.body.append(hubNotice);
-hubNotice.querySelector('#hub-notice-close').onclick=()=>{hubNotice.hidden=true;hubBlockedStudent=null;hubTyped='';hubNotice.querySelector('#hub-hidden-keyboard').value='';hubNotice.querySelector('#hub-override-feedback').textContent='';};
-const hubHiddenInput=hubNotice.querySelector('#hub-hidden-keyboard');
-const hubFeedback=document.createElement('p');hubFeedback.id='hub-override-feedback';hubFeedback.style.cssText='font-size:13px;color:#7b3241;margin:10px 0 0';hubFeedback.setAttribute('aria-live','polite');
-hubNotice.querySelector('section').append(hubFeedback);
-let hubTeacherBusy=false;
-async function hubTeacherTry(pin){
- if(!hubBlockedStudent||hubTeacherBusy)return;
- hubTeacherBusy=true;hubFeedback.textContent='Verifying teacher authorization…';
- try{
-  const selected=hubBlockedStudent;
-  const r=await gateCall('override',{payload:gateStudentPayload(selected.student),pin});
-  if(!r||!r.ok){hubTyped='';hubHiddenInput.value='';hubFeedback.textContent='Teacher authorization was not accepted. Please check the code or contact the administrator.';return;}
-  hubTeacherToken=r.token;hubNotice.hidden=true;hubTyped='';hubHiddenInput.value='';hubFeedback.textContent='';
-  await selectStudentWithGate(selected.student,selected.target);
-  if(!hubNotice.hidden){hubFeedback.textContent='Teacher access could not be opened. Please contact the administrator.';return;}
-  hubBlockedStudent=null;
-  const chip=document.getElementById('hub-teacher-chip')||document.createElement('button');chip.id='hub-teacher-chip';chip.className='btn ghost';chip.textContent='Teacher Mode • Exit';chip.onclick=()=>{hubTeacherToken='';chip.remove();};
-  document.querySelector('.bar')?.append(chip);
- }catch(e){hubFeedback.textContent='Teacher authorization could not connect. Check your internet connection and the Apps Script deployment.';}
- finally{hubTeacherBusy=false;}
-}
-function hubAcceptDigits(text){
- if(hubNotice.hidden||!hubBlockedStudent||hubTeacherBusy)return;
- hubFeedback.textContent='';
- for(const ch of String(text).replace(/[^0-9]/g,'')){
-  hubTyped=(hubTyped+ch).slice(-4);
-  if(hubTyped.length===4){const test=hubTyped;hubTyped='';hubTeacherTry(test);break;}
- }
-}
-// On physical keyboards, catch keys even when no text field has focus.
-// On Android/iOS, capture input events from the invisible focused input instead.
-document.addEventListener('keydown',e=>{
- if(e.target===hubHiddenInput||e.ctrlKey||e.metaKey||e.altKey||!/^[0-9]$/.test(e.key))return;
- hubAcceptDigits(e.key);
-});
-hubNotice.addEventListener('click',e=>{if(e.target.closest('button'))return;hubHiddenInput.focus();});
-hubHiddenInput.addEventListener('input',e=>{
- const digits=e.target.value.replace(/\D/g,'');e.target.value='';hubAcceptDigits(digits);
-});
-async function selectStudentWithGate(student,target){
- const record=gateStudentPayload(student);
- if(!record.deviceId){hubBlockedStudent={student,target};hubNotice.hidden=false;return;}
- const result=await gateCall('open',{payload:record});
- if(!result.ok){hubBlockedStudent={student,target};hubNotice.hidden=false;return;}
- currentStudent=student;hubGateStudent=record.studentId;hubGateToken=result.token;
+function selectStudentWithGate(student,target){
+ // Retained function name for compatibility with roster handlers; no gate or timer.
+ currentStudent=student;
  currentClassSection=student.grade==='10'?'Grade 10 – '+student.section:'';
  location.hash=target;showPage();
 }
@@ -564,8 +522,7 @@ function renderMastery(){
  host.append(feedback,actions);
 }
 async function submitToSheet(record){
- if(!hubGateToken||!hubGateStudent||record.studentId!==hubGateStudent)return {ok:false,error:'Please try again.'};
- return gateCall('complete',{payload:record,deviceId:browserRegistrationId(),token:hubGateToken});
+ return gateCall('complete',{payload:record});
 }
 async function finishMastery(){
  const m=mastery;if(!m||m.passed!==3)return;
