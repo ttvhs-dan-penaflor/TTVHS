@@ -6,6 +6,20 @@
 .install-btn{border:1px solid #087f86;background:#087f86;color:#fff;border-radius:999px;padding:9px 15px;font-size:14px;font-weight:800;white-space:nowrap}.install-btn:hover{background:#056d72}.install-btn[hidden]{display:none!important}.install-help{position:fixed;inset:0;background:#092c40aa;z-index:30;display:grid;place-items:center;padding:20px}.install-help[hidden]{display:none!important}.install-dialog{background:white;color:#16324a;width:min(100%,430px);border-radius:20px;padding:25px;box-shadow:0 16px 55px #0003}.install-dialog h2{margin:0 0 9px}.install-dialog p{margin:0 0 13px}.install-dialog ol{padding-left:24px}.install-dialog li{margin:7px 0}.install-close{background:#e5f4f5;color:#056e76;border:0;border-radius:10px;padding:10px 18px;font-weight:800}@media(max-width:550px){.install-btn{padding:8px 10px;font-size:12px}.bar{gap:8px}}
 
 .student-search{display:block;width:100%;max-width:600px;border:2px solid #bdd4de;border-radius:12px;padding:13px 16px;font:inherit;margin-bottom:20px}.student-search:focus{outline:3px solid #9cdee1}.roster-group{margin:23px 0 12px}.roster-group h3{font-size:18px;margin:0 0 12px}.roster-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.student-button{background:#f2f9fa;border:1px solid #cfe3e9;border-radius:11px;padding:12px;text-align:left;color:#16324a;font-weight:700;cursor:pointer;min-height:49px}.student-button:hover,.student-button:focus-visible{background:#dff5f3;border-color:#087f86}.student-button:focus-visible{outline:3px solid #eab85c}.student-button[hidden],.roster-group[hidden]{display:none!important}@media(max-width:650px){.roster-list{grid-template-columns:1fr}}
+
+/* Lesson listening and completion controls */
+.reader-shell{margin:24px 0;background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:0 6px 24px #0e40550b}
+.reader-shell h3{margin:0 0 5px;font-size:21px}.reader-shell p{color:var(--muted)}
+.reader-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:16px 0}
+.reader-controls .btn{min-height:44px}.reader-speed{display:inline-flex;align-items:center;gap:8px;font-weight:750}
+.reader-speed select{font:inherit;color:var(--ink);border:1px solid #b8cfd9;border-radius:9px;padding:10px;background:white}
+.reader-check{display:flex;align-items:center;gap:10px;cursor:pointer;margin:12px 0 16px;font-weight:700}
+.reader-check input{width:20px;height:20px;accent-color:var(--teal)}
+.reader-message{color:var(--muted);font-size:14px;margin:9px 0}
+.lesson-done{display:flex;gap:12px;flex-wrap:wrap;align-items:center;padding-top:18px;border-top:1px solid var(--line)}
+.lesson-status{font-weight:750;color:#225a64}
+.reader-shell .notice{margin-top:8px}
+@media(max-width:550px){.reader-shell{padding:18px}.reader-controls .btn{flex:1;justify-content:center}}
 </style><link rel="manifest" href="./manifest.webmanifest"><meta name="theme-color" content="#103e58"><meta name="apple-mobile-web-app-capable" content="yes"><link rel="apple-touch-icon" href="./icon-192.png"></head><body>
 <header class="top"><div class="bar"><a href="#home" class="brand"><span class="mark">🎓</span><span>TTVHS Learning Hub<small>EXPLORE • LEARN • PRACTICE • EXCEL</small></span></a><nav class="nav" aria-label="Main navigation"><a href="#home" data-nav="home">Home</a><a href="#teachers" data-nav="teachers">Teachers</a></nav><button type="button" id="installAppBtn" class="install-btn">📲 Add to Home Screen</button></div></header>
 <main>
@@ -24,8 +38,34 @@
 <div id="g10culture" class="page" hidden><section class="section"><div class="wrap"><div class="crumbs"><a href="#subjects">Subjects</a> › Grade 10 – Aquaculture (Fish Culture)</div><div class="kicker">Grade 10 • Aquaculture – Fish Culture</div><h2>Fish Culture Learning Area</h2><p class="intro">A dedicated Grade 10 space for Aquaculture – Fish Culture. Sample topics are shown below; full lesson materials can be added later.</p><div class="cards"><article class="card"><div class="tile">🏞️</div><h3>Prepare Fish Grow-out Facilities</h3><p>Preview the procedures for preparing a safe fish grow-out environment.</p><div class="tag">Coming soon</div></article><article class="card"><div class="tile blue">🐟</div><h3>Stocking Fingerlings</h3><p>Introduce proper handling and stocking practices for cultured fish.</p><div class="tag">Coming soon</div></article><article class="card"><div class="tile">📋</div><h3>Lessons, Activities &amp; Quizzes</h3><p>Separate learning materials and assessments will be added here for Grade 10 Fish Culture.</p><div class="tag">Coming soon</div></article></div><div class="notice">This is a sample section. No lesson or quiz has been published yet for Fish Culture.</div><p><a class="btn ghost" href="#subjects">← Back to Subjects</a></p></div></section></div>
 <div id="g10" class="page" hidden><section class="section"><div class="wrap"><div class="crumbs"><a href="#subjects">Subjects</a> › Grade 10 – Aquaculture (Fish Capture)</div><div class="kicker">Grade 10 • Aquaculture (Fish Capture)</div><h2>Learning Modules</h2><p class="intro">Sample Grade 10 modules (placeholder content). Fish Capture-specific lessons can be added next.</p><div class="tabs"><a href="#g10" data-page-tab="g10">Modules</a><a href="#g10lesson" data-page-tab="g10lesson">Sample Lesson</a><a href="#g10activity" data-page-tab="g10activity">Activities</a><a href="#g10quiz" data-page-tab="g10quiz">Quiz</a></div><div class="cards two"><article class="card"><div class="tile blue">🏞️</div><h3>Preparing Fish Grow-out Facilities</h3><p>Understand the basic checks and preparation before fish are stocked in a grow-out facility.</p><div class="tag">Sample lesson</div><a class="btn" href="#g10lesson">Open lesson →</a></article><article class="card"><div class="tile blue">🐟</div><h3>Stocking Fingerlings</h3><p>Preview the importance of healthy fingerlings, careful handling, and acclimation.</p><div class="tag">Preview topic</div><button class="btn ghost" onclick="showPreview('Stocking Fingerlings')">Preview topic →</button></article></div></div></section></div>
 <div id="g11" class="page" hidden><section class="section"><div class="wrap"><div class="crumbs"><a href="#subjects">Subjects</a> › Grade 11 – Aquaculture NC II</div><div class="kicker">Grade 11 • Aquaculture NC II</div><h2>Explore Our Topics</h2><p class="intro">Sample Aquaculture NC II modules are retained.</p><div class="tabs"><a href="#g11" data-page-tab="g11">Modules</a><a href="#g11lesson" data-page-tab="g11lesson">Sample Lesson</a><a href="#g11activity" data-page-tab="g11activity">Activities</a><a href="#g11quiz" data-page-tab="g11quiz">Quiz</a></div><div class="cards"><article class="card"><div class="tile">💧</div><h3>Water Quality Management</h3><p>Understand temperature, dissolved oxygen, pH, and other factors that affect fish health.</p><div class="tag">Sample lesson • 5.4.1</div><a href="#g11lesson" class="btn">Open lesson →</a></article><article class="card"><div class="tile">🐠</div><h3>Selection of Broodstock</h3><p>Learn what to look for when selecting healthy and suitable fish breeders.</p><div class="tag">Preview topic</div><button class="btn ghost" onclick="showPreview('Selection of Broodstock')">Preview topic →</button></article><article class="card"><div class="tile">🌿</div><h3>Fish Pond Preparation</h3><p>Review steps for creating a safe, clean environment before stocking fish.</p><div class="tag">Preview topic</div><button class="btn ghost" onclick="showPreview('Fish Pond Preparation')">Preview topic →</button></article></div></div></section></div>
-<div id="g10lesson" class="page" hidden><section class="section"><div class="wrap"><div class="crumbs"><a href="#g10">Grade 10</a> › Sample Lesson</div><div class="kicker">Grade 10 • Sample Lesson</div><h2>Preparing a Fish Grow-out Facility</h2><p class="intro">An introductory demonstration lesson, not a full curriculum module.</p><div class="tabs"><a href="#g10">Modules</a><a href="#g10lesson">Sample Lesson</a><a href="#g10activity">Activities</a><a href="#g10quiz">Quiz</a></div><div class="lesson-grid"><article class="panel"><h3>Why prepare the facility?</h3><p>A prepared grow-out facility helps maintain suitable conditions for fish and reduces avoidable risks before stocking.</p><ul><li>Inspect the facility for damage or leaks.</li><li>Remove debris and unwanted materials safely.</li><li>Check that water supply and drainage systems work.</li><li>Follow safety practices and use appropriate protective equipment.</li><li>Confirm the environment is ready before introducing fingerlings.</li></ul><a href="#g10activity" class="btn ghost">Try an activity →</a></article><article class="panel"><div class="pond"><div>PREPARE BEFORE STOCKING ☀️</div><div class="fish">🏞️ 🐟</div><div class="mini-row"><span>✔ Inspect</span><span>✔ Clean</span><span>✔ Check water</span></div></div></article></div></div></section></div>
-<div id="g11lesson" class="page" hidden><section class="section"><div class="wrap"><div class="crumbs"><a href="#g11">Grade 11</a> › Sample Lesson</div><div class="kicker">Grade 11 • Sample lesson 5.4.1</div><h2>Water Quality Management</h2><p class="intro">Healthy water helps fish survive, feed, and grow.</p><div class="tabs"><a href="#g11">Modules</a><a href="#g11lesson">Sample Lesson</a><a href="#g11activity">Activities</a><a href="#g11quiz">Quiz</a></div><div class="lesson-grid"><article class="panel"><h3>Why does water quality matter?</h3><p>Fish depend on their aquatic environment for oxygen, comfort, and survival. Regular monitoring helps prevent stress and disease.</p><ul><li><strong>Temperature:</strong> influences fish metabolism and activity.</li><li><strong>Dissolved oxygen:</strong> is needed for respiration.</li><li><strong>pH:</strong> measures how acidic or basic water is.</li><li><strong>Ammonia:</strong> can build up from waste and uneaten feed.</li></ul><a href="#g11quiz" class="btn ghost">Try the quick quiz →</a></article><article class="panel"><div class="pond"><div>A HEALTHY AQUATIC ENVIRONMENT ☀️</div><div class="fish">🐟 🐠</div><div class="mini-row"><span>💨 Dissolved oxygen</span><span>🌡️ Temperature</span><span>🧪 pH</span></div></div></article></div></div></section></div>
+<div id="g10lesson" class="page" hidden><section class="section"><div class="wrap"><div class="crumbs"><a href="#g10">Grade 10</a> › Sample Lesson</div><div class="kicker">Grade 10 • Sample Lesson</div><h2>Preparing a Fish Grow-out Facility</h2><p class="intro">An introductory demonstration lesson, not a full curriculum module.</p><div class="tabs"><a href="#g10">Modules</a><a href="#g10lesson">Sample Lesson</a><a href="#g10activity">Activities</a><a href="#g10quiz">Quiz</a></div><div class="lesson-grid"><article class="panel"><h3>Why prepare the facility?</h3><p>A prepared grow-out facility helps maintain suitable conditions for fish and reduces avoidable risks before stocking.</p><ul><li>Inspect the facility for damage or leaks.</li><li>Remove debris and unwanted materials safely.</li><li>Check that water supply and drainage systems work.</li><li>Follow safety practices and use appropriate protective equipment.</li><li>Confirm the environment is ready before introducing fingerlings.</li></ul><a href="#g10activity" class="btn ghost">Try an activity →</a></article><article class="panel"><div class="pond"><div>PREPARE BEFORE STOCKING ☀️</div><div class="fish">🏞️ 🐟</div><div class="mini-row"><span>✔ Inspect</span><span>✔ Clean</span><span>✔ Check water</span></div></div></article></div><div class="reader-shell" id="reader10" data-lesson-id="g10lesson">
+<h3>🔊 Listen to this lesson</h3>
+<p>Read the lesson yourself or use your device's voice to listen. Audio may require a tap on Android.</p>
+<div class="reader-controls">
+<button type="button" class="btn" data-reader-action="play">▶ Read Aloud</button>
+<button type="button" class="btn ghost" data-reader-action="pause" disabled>⏸ Pause</button>
+<button type="button" class="btn ghost" data-reader-action="stop" disabled>■ Stop</button>
+<label class="reader-speed">Speed <select data-reader-speed aria-label="Reading speed"><option value="0.8">Slow (0.8×)</option><option value="1" selected>Normal (1×)</option><option value="1.2">Fast (1.2×)</option><option value="1.5">Very fast (1.5×)</option></select></label>
+</div>
+<label class="reader-check"><input type="checkbox" data-reader-auto> Automatically read lessons when opened (if supported)</label>
+<div class="reader-message" data-reader-message role="status" aria-live="polite">Ready to read aloud.</div>
+<div class="lesson-done"><button class="btn" type="button" data-mark-complete>✓ Done Reading</button><span class="lesson-status" data-completion-status role="status" aria-live="polite">Not completed yet</span></div>
+<p class="muted" style="font-size:13px">Completion is saved only on this browser/device, not yet to Google Drive. This button records self-reported completion; it does not verify comprehension.</p>
+</div></div></section></div>
+<div id="g11lesson" class="page" hidden><section class="section"><div class="wrap"><div class="crumbs"><a href="#g11">Grade 11</a> › Sample Lesson</div><div class="kicker">Grade 11 • Sample lesson 5.4.1</div><h2>Water Quality Management</h2><p class="intro">Healthy water helps fish survive, feed, and grow.</p><div class="tabs"><a href="#g11">Modules</a><a href="#g11lesson">Sample Lesson</a><a href="#g11activity">Activities</a><a href="#g11quiz">Quiz</a></div><div class="lesson-grid"><article class="panel"><h3>Why does water quality matter?</h3><p>Fish depend on their aquatic environment for oxygen, comfort, and survival. Regular monitoring helps prevent stress and disease.</p><ul><li><strong>Temperature:</strong> influences fish metabolism and activity.</li><li><strong>Dissolved oxygen:</strong> is needed for respiration.</li><li><strong>pH:</strong> measures how acidic or basic water is.</li><li><strong>Ammonia:</strong> can build up from waste and uneaten feed.</li></ul><a href="#g11quiz" class="btn ghost">Try the quick quiz →</a></article><article class="panel"><div class="pond"><div>A HEALTHY AQUATIC ENVIRONMENT ☀️</div><div class="fish">🐟 🐠</div><div class="mini-row"><span>💨 Dissolved oxygen</span><span>🌡️ Temperature</span><span>🧪 pH</span></div></div></article></div><div class="reader-shell" id="reader11" data-lesson-id="g11lesson">
+<h3>🔊 Listen to this lesson</h3>
+<p>Read the lesson yourself or use your device's voice to listen. Audio may require a tap on Android.</p>
+<div class="reader-controls">
+<button type="button" class="btn" data-reader-action="play">▶ Read Aloud</button>
+<button type="button" class="btn ghost" data-reader-action="pause" disabled>⏸ Pause</button>
+<button type="button" class="btn ghost" data-reader-action="stop" disabled>■ Stop</button>
+<label class="reader-speed">Speed <select data-reader-speed aria-label="Reading speed"><option value="0.8">Slow (0.8×)</option><option value="1" selected>Normal (1×)</option><option value="1.2">Fast (1.2×)</option><option value="1.5">Very fast (1.5×)</option></select></label>
+</div>
+<label class="reader-check"><input type="checkbox" data-reader-auto> Automatically read lessons when opened (if supported)</label>
+<div class="reader-message" data-reader-message role="status" aria-live="polite">Ready to read aloud.</div>
+<div class="lesson-done"><button class="btn" type="button" data-mark-complete>✓ Done Reading</button><span class="lesson-status" data-completion-status role="status" aria-live="polite">Not completed yet</span></div>
+<p class="muted" style="font-size:13px">Completion is saved only on this browser/device, not yet to Google Drive. This button records self-reported completion; it does not verify comprehension.</p>
+</div></div></section></div>
 <div id="g10activity" class="page" hidden><section class="section"><div class="wrap"><div class="crumbs"><a href="#g10">Grade 10</a> › Activities</div><div class="kicker">Grade 10 • Activity</div><h2>Facility Readiness Checklist</h2><div class="tabs"><a href="#g10">Modules</a><a href="#g10lesson">Sample Lesson</a><a href="#g10activity">Activities</a><a href="#g10quiz">Quiz</a></div><article class="panel"><h3>Classroom activity</h3><p>Tick each item you would check before stocking fingerlings.</p><div id="g10checks"></div><p class="notice" id="g10checkstatus" aria-live="polite">Check items above to track your progress.</p></article></div></section></div>
 <div id="g11activity" class="page" hidden><section class="section"><div class="wrap"><div class="crumbs"><a href="#g11">Grade 11</a> › Activities</div><div class="kicker">Grade 11 • Activity</div><h2>Water Quality Observation</h2><div class="tabs"><a href="#g11">Modules</a><a href="#g11lesson">Sample Lesson</a><a href="#g11activity">Activities</a><a href="#g11quiz">Quiz</a></div><article class="panel"><h3>Quick observation task</h3><p>List three water-quality factors you would monitor in a fish culture facility and explain why each matters. You may discuss your answers in class.</p><textarea aria-label="Your water quality observations" placeholder="1. ..." style="width:100%;min-height:135px;border:1px solid #c9dce4;border-radius:12px;padding:14px;font:inherit"></textarea><p class="muted">This is a local practice field; answers are not collected or saved.</p></article></div></section></div>
 <div id="g10quiz" class="page" hidden><section class="section"><div class="wrap"><div class="crumbs"><a href="#g10">Grade 10</a> › Quiz</div><div class="kicker">Grade 10 • Sample Assessment</div><h2>Facility Preparation Quiz</h2><p class="intro">Three practice questions with instant feedback.</p><div class="tabs"><a href="#g10">Modules</a><a href="#g10lesson">Sample Lesson</a><a href="#g10activity">Activities</a><a href="#g10quiz">Quiz</a></div><div class="quizbox" id="quiz10"></div></div></section></div>
@@ -156,9 +196,9 @@ function showPage(){
   pages.forEach(p=>p.hidden=p.id!==name);
   document.querySelectorAll('[data-nav]').forEach(a=>{let active=a.dataset.nav===name||(a.dataset.nav==='teachers'&&name!=='home');a.classList.toggle('active',active);if(active)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
   document.querySelectorAll('.tabs a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+name));
-  showSectionBanner();showOtherBanner();window.scrollTo(0,0);
+  showSectionBanner();showOtherBanner();onLessonNavigation(name);window.scrollTo(0,0);
 }
-window.addEventListener('hashchange',showPage);showPage();
+window.addEventListener('hashchange',showPage);
 function showPreview(topic){alert(topic+' is a preview module. Full learning content can be added later.');}
 const checkItems=['Facility is inspected for damage or leaks','Debris and unsafe materials are removed','Water supply and drainage are checked','Safety procedures and protective equipment are considered','Facility readiness is confirmed before stocking'];let checks=document.getElementById('g10checks');checkItems.forEach((t,i)=>{const label=document.createElement('label');label.style.cssText='display:flex;gap:12px;align-items:center;padding:12px;border-bottom:1px solid #e5edf1;cursor:pointer';const input=document.createElement('input');input.type='checkbox';input.style.width='20px';input.style.height='20px';input.addEventListener('change',()=>{const done=checks.querySelectorAll('input:checked').length;document.getElementById('g10checkstatus').textContent=done===checkItems.length?'✅ All five readiness items checked!':`${done} of ${checkItems.length} items checked.`});label.append(input,document.createTextNode(t));checks.appendChild(label)});
 const questionSets={10:[{q:'What should be done before stocking fingerlings?',a:['Inspect the grow-out facility','Ignore drainage','Leave debris in place','Skip safety checks'],correct:0,why:'Inspecting the facility helps identify problems before stocking.'},{q:'Why should debris be removed from a grow-out facility?',a:['To make the water colder','To reduce hazards and contamination','To change fish color','To increase the number of fish'],correct:1,why:'Removing debris helps prepare a cleaner and safer environment.'},{q:'Which system should be checked before stocking?',a:['Classroom lighting','Mobile phone signal','Water supply and drainage','School bell'],correct:2,why:'Water supply and drainage help manage the culture environment.'}],11:[{q:'Which water-quality parameter tells us how much oxygen is available for fish to breathe?',a:['Water color','Dissolved oxygen','Pond depth','Salinity'],correct:1,why:'Dissolved oxygen measures oxygen available in water for aquatic organisms.'},{q:'Which instrument is commonly used to measure water temperature?',a:['Thermometer','Weighing scale','Ruler','Stopwatch'],correct:0,why:'A thermometer measures water temperature.'},{q:'Why should uneaten fish feed be removed or minimized?',a:['It always lowers water temperature','It can decompose and worsen water quality','It makes fish swim faster','It increases water clarity'],correct:1,why:'Uneaten feed decomposes and can contribute to ammonia buildup and reduced oxygen.'}]};
@@ -190,4 +230,104 @@ document.getElementById('installClose').addEventListener('click',()=>{installHel
 installHelp.addEventListener('click',e=>{if(e.target===installHelp)installHelp.hidden=true;});
 setInstallButton();
 if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
+
+/* Browser speech synthesis and device-local lesson completion */
+const speechAvailable='speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+let speechLesson=null,speechToken=0,activeUtterance=null;
+const AUTO_READ_KEY='ttvhs-reader-auto-v1';
+function readSetting(){try{return localStorage.getItem(AUTO_READ_KEY)==='true';}catch(e){return false;}}
+function saveSetting(v){try{localStorage.setItem(AUTO_READ_KEY,String(v));}catch(e){}}
+function completionKey(lessonId){
+ if(!currentStudent||!selectedTeacher||!selectedTerm)return null;
+ const s=currentStudent;
+ return 'ttvhs-lesson-complete-v1:'+JSON.stringify([selectedTeacher,selectedTerm,s.grade,s.section,s.name,lessonId]);
+}
+function getCompletion(lessonId){
+ const key=completionKey(lessonId);if(!key)return null;
+ try{return localStorage.getItem(key);}catch(e){return null;}
+}
+function updateCompletion(lessonId){
+ const panel=document.querySelector('[data-lesson-id="'+lessonId+'"]');if(!panel)return;
+ const stored=getCompletion(lessonId),status=panel.querySelector('[data-completion-status]');
+ const btn=panel.querySelector('[data-mark-complete]');
+ if(stored){status.textContent='✅ Completed on '+new Date(stored).toLocaleString();btn.textContent='✓ Completed (tap to update)';}
+ else{status.textContent='Not completed yet';btn.textContent='✓ Done Reading';}
+ btn.disabled=!completionKey(lessonId);
+}
+function updateReaderUI(lessonId,state,message){
+ const panel=document.querySelector('[data-lesson-id="'+lessonId+'"]');if(!panel)return;
+ panel.querySelector('[data-reader-message]').textContent=message;
+ const play=panel.querySelector('[data-reader-action="play"]');
+ const pause=panel.querySelector('[data-reader-action="pause"]');
+ const stop=panel.querySelector('[data-reader-action="stop"]');
+ play.textContent=state==='playing'?'↻ Restart':'▶ Read Aloud';
+ pause.textContent=state==='paused'?'▶ Resume':'⏸ Pause';
+ pause.disabled=state==='idle'||!speechAvailable;
+ stop.disabled=state==='idle'||!speechAvailable;
+}
+function stopLessonSpeech(){
+ speechToken++;
+ if(speechAvailable){try{window.speechSynthesis.cancel();}catch(e){}}
+ if(speechLesson)updateReaderUI(speechLesson,'idle','Reading stopped.');
+ speechLesson=null;activeUtterance=null;
+}
+function startLessonSpeech(lessonId){
+ if(!speechAvailable){updateReaderUI(lessonId,'idle','Text-to-speech is unavailable in this browser. Try Chrome or Edge on your phone.');return;}
+ if(!currentStudent){updateReaderUI(lessonId,'idle','Choose your student name first.');return;}
+ const page=document.getElementById(lessonId);if(!page||page.hidden)return;
+ const article=page.querySelector('.lesson-grid article.panel');
+ const heading=page.querySelector('h2');
+ const body=article?.innerText||article?.textContent||'';
+ const speechText=(heading?.textContent||'Lesson')+'. '+body.replace(/Try (an activity|the quick quiz).*/gi,'').replace(/\s+/g,' ').trim();
+ if(!speechText.trim())return;
+ stopLessonSpeech();
+ const token=++speechToken;
+ const panel=document.querySelector('[data-lesson-id="'+lessonId+'"]');
+ const utter=new SpeechSynthesisUtterance(speechText);
+ utter.lang='en-PH';utter.rate=Number(panel.querySelector('[data-reader-speed]').value)||1;
+ const voices=window.speechSynthesis.getVoices();
+ const preferred=voices.find(v=>/^en-PH/i.test(v.lang))||voices.find(v=>/^en-/i.test(v.lang));
+ if(preferred){utter.voice=preferred;utter.lang=preferred.lang;}
+ speechLesson=lessonId;activeUtterance=utter;
+ utter.onstart=()=>{if(token===speechToken)updateReaderUI(lessonId,'playing','🔊 Reading aloud…');};
+ utter.onend=()=>{if(token===speechToken){speechLesson=null;activeUtterance=null;updateReaderUI(lessonId,'idle','✅ Finished reading aloud. Tap Done Reading to confirm.');}};
+ utter.onerror=(e)=>{if(token===speechToken){speechLesson=null;activeUtterance=null;updateReaderUI(lessonId,'idle',e.error==='not-allowed'?'Your browser blocked automatic audio. Tap Read Aloud to start.':'Speech could not start. Check your device volume and speech settings.');}};
+ try{window.speechSynthesis.speak(utter);updateReaderUI(lessonId,'playing','Starting voice playback…');}
+ catch(e){speechLesson=null;updateReaderUI(lessonId,'idle','Unable to start audio on this device.');}
+}
+function pauseOrResume(lessonId){
+ if(!speechAvailable||speechLesson!==lessonId)return;
+ if(window.speechSynthesis.paused){window.speechSynthesis.resume();updateReaderUI(lessonId,'playing','🔊 Reading resumed.');}
+ else{window.speechSynthesis.pause();updateReaderUI(lessonId,'paused','⏸ Reading paused.');}
+}
+function onLessonNavigation(name){
+ if(speechLesson&&speechLesson!==name)stopLessonSpeech();
+ if(name!=='g10lesson'&&name!=='g11lesson')return;
+ const panel=document.querySelector('[data-lesson-id="'+name+'"]');
+ if(!panel)return;
+ panel.querySelector('[data-reader-auto]').checked=readSetting();
+ updateCompletion(name);
+ if(readSetting()&&speechLesson!==name)startLessonSpeech(name);
+}
+for(const panel of document.querySelectorAll('.reader-shell')){
+ const lessonId=panel.dataset.lessonId;
+ panel.querySelector('[data-reader-action="play"]').addEventListener('click',()=>startLessonSpeech(lessonId));
+ panel.querySelector('[data-reader-action="pause"]').addEventListener('click',()=>pauseOrResume(lessonId));
+ panel.querySelector('[data-reader-action="stop"]').addEventListener('click',stopLessonSpeech);
+ panel.querySelector('[data-reader-auto]').addEventListener('change',e=>{
+  saveSetting(e.target.checked);
+  document.querySelectorAll('[data-reader-auto]').forEach(x=>x.checked=e.target.checked);
+  if(e.target.checked)startLessonSpeech(lessonId);
+ });
+ panel.querySelector('[data-mark-complete]').addEventListener('click',()=>{
+  const key=completionKey(lessonId);if(!key){location.hash='teachers';return;}
+  try{localStorage.setItem(key,new Date().toISOString());updateCompletion(lessonId);}
+  catch(e){panel.querySelector('[data-completion-status]').textContent='Unable to save on this device. Check browser privacy/storage settings.';}
+ });
+ if(!speechAvailable){panel.querySelectorAll('[data-reader-action]').forEach(x=>x.disabled=true);panel.querySelector('[data-reader-message]').textContent='This browser does not support speech playback.';}
+}
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&speechLesson&&speechAvailable){try{window.speechSynthesis.pause();updateReaderUI(speechLesson,'paused','Paused while the tab is in the background.');}catch(e){}}});
+window.addEventListener('pagehide',stopLessonSpeech);
+
+showPage();
 </script></body></html>
