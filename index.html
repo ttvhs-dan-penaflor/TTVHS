@@ -216,6 +216,7 @@ function filterOtherRoster(grade){const q=document.getElementById('find'+grade).
 function showOtherBanner(){document.getElementById('otherStudentBanner')?.remove();const page=location.hash.slice(1);if(!currentStudent||!['g11','g11lesson','g11activity','g11quiz','g7','g7lesson'].includes(page)||currentStudent.grade==='10')return;
 const host=document.getElementById(page)?.querySelector('.wrap');if(!host)return;const b=document.createElement('div');b.className='notice';b.id='otherStudentBanner';b.style.margin='0 0 20px';const label=document.createElement('strong');label.textContent=currentStudent.term+' • '+currentStudent.section+' • '+currentStudent.name;const btn=document.createElement('button');btn.className='btn ghost';btn.textContent='Switch student';btn.style.marginLeft='12px';btn.onclick=()=>{const grade=currentStudent.grade;currentStudent=null;location.hash='student'+grade;showPage();};b.append(label,btn);host.prepend(b);}
 const pages=[...document.querySelectorAll('.page')];
+for(const page of pages.filter(p=>/^student/.test(p.id))){const wrap=page.querySelector('.wrap');if(wrap){const notice=document.createElement('p');notice.className='notice';notice.textContent='Learning activity notice: the school records the selected student name, a browser registration ID, lesson activity and timestamps for teacher review. Use only your own name.';wrap.prepend(notice);}}
 const pageTrail=[];
 let navigatingBack=false;
 function parentPage(name){
@@ -290,13 +291,22 @@ function showPage(){
   pages.forEach(p=>p.hidden=p.id!==name);
   document.querySelectorAll('[data-nav]').forEach(a=>{let active=a.dataset.nav===name||(a.dataset.nav==='teachers'&&name!=='home'&&name!=='reports');a.classList.toggle('active',active);if(active)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
   document.querySelectorAll('.tabs a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+name));
-  showSectionBanner();showOtherBanner();onLessonNavigation(name);refreshLessonBadges();renderProgressSync(name);window.scrollTo(0,0);
+  showSectionBanner();showOtherBanner();onLessonNavigation(name);activityNavigation(name);refreshLessonBadges();renderProgressSync(name);window.scrollTo(0,0);
 }
 window.addEventListener('hashchange',showPage);
 function showPreview(topic){alert(topic+' is a preview module. Full learning content can be added later.');}
 const checkItems=['Facility is inspected for damage or leaks','Debris and unsafe materials are removed','Water supply and drainage are checked','Safety procedures and protective equipment are considered','Facility readiness is confirmed before stocking'];let checks=document.getElementById('g10checks');checkItems.forEach((t,i)=>{const label=document.createElement('label');label.style.cssText='display:flex;gap:12px;align-items:center;padding:12px;border-bottom:1px solid #e5edf1;cursor:pointer';const input=document.createElement('input');input.type='checkbox';input.style.width='20px';input.style.height='20px';input.addEventListener('change',()=>{const done=checks.querySelectorAll('input:checked').length;document.getElementById('g10checkstatus').textContent=done===checkItems.length?'✅ All five readiness items checked!':`${done} of ${checkItems.length} items checked.`});label.append(input,document.createTextNode(t));checks.appendChild(label)});
 const questionSets={10:[{q:'What should be done before stocking fingerlings?',a:['Inspect the grow-out facility','Ignore drainage','Leave debris in place','Skip safety checks'],correct:0,why:'Inspecting the facility helps identify problems before stocking.'},{q:'Why should debris be removed from a grow-out facility?',a:['To make the water colder','To reduce hazards and contamination','To change fish color','To increase the number of fish'],correct:1,why:'Removing debris helps prepare a cleaner and safer environment.'},{q:'Which system should be checked before stocking?',a:['Classroom lighting','Mobile phone signal','Water supply and drainage','School bell'],correct:2,why:'Water supply and drainage help manage the culture environment.'}],11:[{q:'Which water-quality parameter tells us how much oxygen is available for fish to breathe?',a:['Water color','Dissolved oxygen','Pond depth','Salinity'],correct:1,why:'Dissolved oxygen measures oxygen available in water for aquatic organisms.'},{q:'Which instrument is commonly used to measure water temperature?',a:['Thermometer','Weighing scale','Ruler','Stopwatch'],correct:0,why:'A thermometer measures water temperature.'},{q:'Why should uneaten fish feed be removed or minimized?',a:['It always lowers water temperature','It can decompose and worsen water quality','It makes fish swim faster','It increases water clarity'],correct:1,why:'Uneaten feed decomposes and can contribute to ammonia buildup and reduced oxygen.'}]};
-function setupQuiz(grade){const host=document.getElementById('quiz'+grade),questions=questionSets[grade];let i=0,score=0,answered=false;function render(){answered=false;const q=questions[i];host.replaceChildren();const meta=document.createElement('div');meta.className='quiz-meta';meta.textContent=`Question ${i+1} of ${questions.length} • Score: ${score}`;const bar=document.createElement('div');bar.className='progress';const barfill=document.createElement('span');barfill.style.width=`${(i+1)/questions.length*100}%`;bar.appendChild(barfill);const title=document.createElement('div');title.className='question';title.textContent=q.q;const answers=document.createElement('div');answers.className='answers';const feedback=document.createElement('div');feedback.className='feedback';feedback.setAttribute('aria-live','polite');const actions=document.createElement('div');actions.className='quiz-actions';const note=document.createElement('span');note.className='muted';note.textContent='Sample quiz • Grade '+grade;const next=document.createElement('button');next.className='btn';next.disabled=true;next.textContent=i===questions.length-1?'See results →':'Next →';next.onclick=()=>{if(i===questions.length-1){showResult()}else{i++;render()}};actions.append(note,next);q.a.forEach((text,j)=>{const b=document.createElement('button');b.className='answer';b.textContent=String.fromCharCode(65+j)+'. '+text;b.onclick=()=>{if(answered)return;answered=true;const ok=j===q.correct;if(ok)score++;[...answers.children].forEach((btn,k)=>{btn.disabled=true;if(k===q.correct)btn.classList.add('correct');else if(k===j)btn.classList.add('wrong')});feedback.textContent=(ok?'✅ Correct! ':'❌ Not quite. ')+q.why;meta.textContent=`Question ${i+1} of ${questions.length} • Score: ${score}`;next.disabled=false};answers.appendChild(b)});host.append(meta,bar,title,answers,feedback,actions)}function showResult(){host.replaceChildren();const title=document.createElement('h3');title.className='question';title.textContent=`You scored ${score} out of ${questions.length}!`;const message=document.createElement('p');message.textContent=score===questions.length?'Excellent! You answered every question correctly.':'Good effort! Review the lesson and try again.';const retry=document.createElement('button');retry.className='btn';retry.textContent='Try again ↻';retry.onclick=()=>{i=0;score=0;render()};host.append(title,message,retry)}render()}setupQuiz(10);setupQuiz(11);
+function setupQuiz(grade){
+ const host=document.getElementById('quiz'+grade),questions=questionSets[grade];if(!host)return;
+ let i=0,score=0,run=0;
+ function ready(){run++;i=0;score=0;host.replaceChildren(el('h3','question','Ready for the practice quiz?'),el('p','','15 seconds per question. Wait until time ends before continuing.'));const start=el('button','btn','Start Quiz');start.onclick=()=>{run++;render();};host.append(start);}
+ function render(){const token=run,q=questions[i],deadline=Date.now()+15000;let picked=-1;host.replaceChildren();const clock=el('div','quiz-meta','Question '+(i+1)+' of '+questions.length+' • 15 seconds');host.append(clock,el('div','question',q.q));const answers=el('div','answers'),feedback=el('div','feedback'),next=el('button','btn','Next (15s)');next.disabled=true;
+ const ctx=studentContext(grade===11?'g11lesson':currentStudent?.area==='culture'?'g10culturelesson':'g10lesson');if(ctx){ctx.lessonTitle='Practice quiz — '+ctx.lessonTitle;activitySend('Practice Q'+(i+1)+'/3',ctx,i===0);}
+ q.a.forEach((text,j)=>{const b=el('button','answer',String.fromCharCode(65+j)+'. '+text);b.onclick=()=>{if(Date.now()>=deadline||token!==run)return;picked=j;[...answers.children].forEach((x,k)=>x.style.background=k===j?'#cce9ed':'');};answers.append(b);});host.append(answers,feedback,next);
+ const timer=setInterval(()=>{if(token!==run||!host.contains(clock)){clearInterval(timer);return;}const rem=Math.max(0,Math.ceil((deadline-Date.now())/1000));clock.textContent='Question '+(i+1)+' of '+questions.length+' • '+rem+' seconds';next.textContent='Next ('+rem+'s)';if(rem)return;clearInterval(timer);if(picked===q.correct)score++;[...answers.children].forEach((b,j)=>{b.disabled=true;b.style.background='';if(j===q.correct)b.classList.add('correct');else if(j===picked)b.classList.add('wrong');});feedback.textContent=q.why;next.disabled=false;next.textContent=i===questions.length-1?'See results →':'Next question →';next.onclick=()=>{if(++i<questions.length)render();else{host.replaceChildren(el('h3','question','You scored '+score+' out of '+questions.length+'!'));const retry=el('button','btn','Try again');retry.onclick=ready;host.append(retry);if(ctx)activitySend('Practice finished',ctx);}};},150);
+ }ready();
+}
 
 // Install button: browsers only allow their own install prompt when eligible.
 let deferredInstallPrompt=null;
@@ -364,9 +374,40 @@ function gateCall(action,request){
   };send();
  });
 }
+
+let activitySession=null;
+function activitySend(status, ctx, fresh=false){
+ if(!ctx)return;
+ const deviceId=browserRegistrationId();if(!deviceId)return;
+ if(fresh||!activitySession||activitySession.ctx.studentId!==ctx.studentId||activitySession.ctx.lessonId!==ctx.lessonId){
+  if(activitySession&&!activitySession.closed)activitySend('Left activity',activitySession.ctx);
+  activitySession={id:crypto.randomUUID(),ctx,seq:0,status:'',closed:false};
+ }
+ const a=activitySession;if(a.closed)return;
+ a.status=status;const seq=++a.seq;
+ if(['Left activity','Submitted','Practice finished'].includes(status))a.closed=true;
+ const payload={type:'activity_event',...a.ctx,deviceId,activityId:a.id,seq,status};
+ fetch(RECORDING_WEB_APP_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify(payload),keepalive:true}).catch(()=>{});
+}
+function activityLessonFor(student){return student.grade==='7'?'g7lesson':student.grade==='11'?'g11lesson':student.area==='culture'?'g10culturelesson':'g10lesson';}
+let lastActivityPage="";
+function activityNavigation(page){
+ if(lastActivityPage!==page&&/quiz$/.test(lastActivityPage)){if(activitySession&&!activitySession.closed)activitySend('Left activity',activitySession.ctx);setupQuiz(lastActivityPage.startsWith("g11")?11:10);}
+ lastActivityPage=page;
+ if(!activitySession||activitySession.closed)return;
+ const a=activitySession;
+ if(!currentStudent||a.ctx.studentId!==[currentStudent.grade,currentStudent.section,currentStudent.name].join('|')||!/^g(7|10|11)/.test(page))activitySend('Left activity',a.ctx);
+ else if(page===a.ctx.lessonId&&a.status==='Name selected')activitySend('Reading lesson',a.ctx);
+ else if(lastActivityPage!==a.ctx.lessonId&&/^(Listening|Audio paused|Answering|Reviewing|Ready for quiz)/.test(a.status))activitySend('Left activity',a.ctx);
+}
+setInterval(()=>{const a=activitySession;if(a&&!a.closed&&!document.hidden)activitySend(a.status,a.ctx);},30000);
+
 function selectStudentWithGate(student,target){
  // Retained function name for compatibility with roster handlers; no gate or timer.
+ if(activitySession&&!activitySession.closed)activitySend('Left activity',activitySession.ctx);
+ clearMastery();stopLessonSpeech();setupQuiz(10);setupQuiz(11);
  currentStudent=student;
+ recordDeviceCheckIn(student);activitySend('Name selected',studentContext(activityLessonFor(student)),true);
  currentClassSection=student.grade==='10'?'Grade 10 – '+student.section:'';
  location.hash=target;showPage();
 }
@@ -424,7 +465,7 @@ function refreshLessonBadges(){
 
 function updateReaderUI(id,state,message){const p=document.querySelector('[data-lesson-id="'+id+'"]');if(!p)return;p.querySelector('[data-reader-message]').textContent=message;const play=p.querySelector('[data-reader-action="play"]'),pause=p.querySelector('[data-reader-action="pause"]'),stop=p.querySelector('[data-reader-action="stop"]');play.textContent=state==='playing'||state==='paused'?'↻ Restart Lesson':'▶ Read Lesson';pause.textContent=state==='paused'?'▶ Resume':'⏸ Pause';pause.disabled=state==='idle'||!speechAvailable;stop.disabled=state==='idle'||!speechAvailable;}
 function endSpeechOnly(){speechToken++;speechLesson=null;speechStarted=false;if(speechAvailable)try{speechSynthesis.cancel()}catch(e){}}
-function stopLessonSpeech(){const old=speechLesson;endSpeechOnly();if(old)updateReaderUI(old,'idle','Reading stopped. No new completion. Read from the beginning to unlock the questions.');}
+function stopLessonSpeech(){const old=speechLesson;endSpeechOnly();if(old)activitySend('Reading lesson',studentContext(old));if(old)updateReaderUI(old,'idle','Reading stopped. No new completion. Read from the beginning to unlock the questions.');}
 function masteryHost(id){return document.querySelector('[data-lesson-id="'+id+'"] [data-mastery-host]');}
 function clearMastery(){stopExplanation();if(mastery){const host=masteryHost(mastery.lessonId);if(host){host.hidden=true;host.replaceChildren();}}mastery=null;}
 // Explanation playback must finish naturally before the student may retry.
@@ -452,7 +493,10 @@ function el(tag,cls,txt){const node=document.createElement(tag);if(cls)node.clas
 function beginMastery(id){
  if(!studentContext(id))return;
  mastery={lessonId:id,ctx:studentContext(id),sessionId:crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random(),audioFinishedAt:new Date().toISOString(),index:0,wrong:0,attempts:[],passed:0};
- renderMastery();
+ const m=mastery,host=masteryHost(id);host.hidden=false;host.replaceChildren();
+ host.append(el('h3','mastery-heading','Ready to take the quiz?'),el('p','','3 questions • 15 seconds per question. Choose an answer and wait for the countdown. Wrong or unanswered questions must be retried.'));
+ const start=el('button','btn','Start Quiz');start.type='button';start.onclick=()=>{if(mastery===m)renderMastery();};host.append(start);
+ activitySend('Ready for quiz',m.ctx);
 }
 function shuffledOptionIndices(count){
  const order=Array.from({length:count},(_,i)=>i);
@@ -471,67 +515,44 @@ function renderMastery(){
  const order=shuffledOptionIndices(q.a.length);
  host.append(el('div','kicker','COMPREHENSION CHECK • '+(m.index+1)+' OF 3'));
  host.append(el('div','mastery-heading',q.q));
- const feedback=el('div','mastery-feedback');feedback.hidden=true;
- feedback.setAttribute('aria-live','polite');
- const actions=el('div','mastery-actions');let answered=false;
+ const feedback=el('div','mastery-feedback');feedback.hidden=true;feedback.setAttribute('aria-live','polite');
+ const clock=el('div','mastery-heading','Time remaining: 15 seconds');host.append(clock);
+ const actions=el('div','mastery-actions');let selected=-1,locked=false;
+ const deadline=Date.now()+15000;const next=el('button','btn','Next question (15s)');next.type='button';next.disabled=true;
+ const buttons=[];activitySend('Answering Q'+(m.index+1)+'/3',m.ctx);
  order.forEach((originalIndex,displayIndex)=>{
-  const choice=q.a[originalIndex];
-  const b=el('button','mastery-choice',String.fromCharCode(65+displayIndex)+'. '+choice);b.type='button';
-  b.onclick=()=>{
-   if(answered)return;answered=true;
-   const good=originalIndex===q.c;
-   // Preserve original answer identity, independent of its shuffled position.
-   m.attempts.push({questionId:'q'+(m.index+1),selectedAnswer:String.fromCharCode(65+originalIndex),correct:good,explanationShown:!good,attemptedAt:new Date().toISOString()});
-   if(!good)m.wrong++;
-   host.querySelectorAll('.mastery-choice').forEach((btn,k)=>{
-    btn.disabled=true;
-    if(order[k]===q.c)btn.classList.add('correct');
-    if(k===displayIndex&&!good)btn.classList.add('wrong');
-   });
-   feedback.hidden=false;feedback.textContent=(good?'✅ Correct! ':'❌ Not quite. ')+q.why;
-   const next=el('button','btn',good?(m.index===2?'Finish and record →':'Next question →'):'🔊 Listening…');
-   next.type='button';
-   next.disabled=!good;
-   next.onclick=()=>{
-    if(next.disabled||mastery!==m)return;
-    stopExplanation();
-    if(!good){renderMastery();return;}
-    m.passed++;
-    if(m.index<2){m.index++;renderMastery();}else finishMastery();
-   };
-   actions.append(next);
-   if(!good){
-    const speechStatus=el('div','muted','Please listen to the complete explanation before trying again.');
-    speechStatus.style.marginTop='10px';actions.append(speechStatus);
-    const replay=el('button','btn ghost','🔊 Replay explanation');
-    replay.type='button';replay.hidden=true;actions.append(replay);
-    const speak=()=>{
-     next.disabled=true;next.textContent='🔊 Listening…';
-     replay.hidden=true;
-     speechStatus.textContent='Please listen to the complete explanation before trying again.';
-     sayExplanation('Let us learn why. '+q.why,
-      ()=>{if(mastery!==m)return;next.disabled=false;next.textContent='Try again →';speechStatus.textContent='✅ Explanation finished. You can try again now.';},
-      (error)=>{if(mastery!==m)return;next.disabled=true;replay.hidden=false;speechStatus.textContent=error+' Tap Replay explanation.';});
-    };
-    replay.onclick=speak;
-    speak();
-   }
-  };
-  host.append(b);
+  const button=el('button','mastery-choice',String.fromCharCode(65+displayIndex)+'. '+q.a[originalIndex]);button.type='button';
+  button.setAttribute('aria-pressed','false');button.onclick=()=>{if(locked||Date.now()>=deadline||mastery!==m)return;selected=originalIndex;buttons.forEach((btn,k)=>{btn.setAttribute('aria-pressed',String(order[k]===selected));btn.style.background=order[k]===selected?'#cce9ed':'';});};buttons.push(button);host.append(button);
  });
- host.append(feedback,actions);
+ actions.append(next);host.append(feedback,actions);
+ function finishQuestion(){
+  if(locked||mastery!==m)return;locked=true;const good=selected===q.c;
+  m.attempts.push({questionId:'q'+(m.index+1),selectedAnswer:selected<0?'Timeout':String.fromCharCode(65+selected),correct:good,explanationShown:!good,attemptedAt:new Date().toISOString()});
+  if(!good)m.wrong++;buttons.forEach((btn,k)=>{btn.disabled=true;btn.style.background='';if(order[k]===q.c)btn.classList.add('correct');else if(order[k]===selected)btn.classList.add('wrong');});
+  clock.textContent='Time is up';feedback.hidden=false;feedback.textContent=(good?'✅ Correct! ':selected<0?'Time expired. ':'❌ Not quite. ')+q.why;
+  activitySend('Reviewing Q'+(m.index+1)+'/3',m.ctx);
+  next.onclick=()=>{if(next.disabled||mastery!==m)return;stopExplanation();if(!good){renderMastery();return;}m.passed++;if(m.index<2){m.index++;renderMastery();}else finishMastery();};
+  if(good){next.disabled=false;next.textContent=m.index===2?'Finish and record →':'Next question →';}
+  else {const note=el('p','muted','Listen to the explanation before retrying.');const replay=el('button','btn ghost','Replay explanation');replay.type='button';actions.append(note,replay);
+   const speak=()=>{next.disabled=true;next.textContent='Listening…';sayExplanation('Let us learn why. '+q.why,()=>{if(mastery===m){next.disabled=false;next.textContent='Try again →';note.textContent='Explanation finished.';}},err=>{note.textContent=err+' Tap Replay explanation.';});};replay.onclick=speak;speak();}
+ }
+ function tick(){if(mastery!==m||!host.contains(clock)){clearInterval(timer);return;}const remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));clock.textContent='Time remaining: '+remaining+' seconds';next.textContent='Next question ('+remaining+'s)';if(!remaining){clearInterval(timer);finishQuestion();}}
+ const timer=setInterval(tick,150);tick();
 }
+
 async function submitToSheet(record){
  return gateCall('complete',{payload:record});
 }
 async function finishMastery(){
  const m=mastery;if(!m||m.passed!==3)return;
  const host=masteryHost(m.lessonId),completedAt=new Date().toISOString();
- const record={type:'lesson_mastery',recordId:m.sessionId,sessionId:m.sessionId,...m.ctx,audioFinishedAt:m.audioFinishedAt,completedAt,questionsCorrect:3,questionsRequired:3,wrongAttempts:m.wrong,attempts:m.attempts};
+ const record={type:'lesson_mastery',activityId:activitySession?.id,deviceId:browserRegistrationId(),recordId:m.sessionId,sessionId:m.sessionId,...m.ctx,audioFinishedAt:m.audioFinishedAt,completedAt,questionsCorrect:3,questionsRequired:3,wrongAttempts:m.wrong,attempts:m.attempts};
  host.replaceChildren();host.append(el('h3','mastery-heading','Saving lesson completion…'));
  const result=await submitToSheet(record);
+ if(mastery!==m)return;
  if(!result.ok){host.replaceChildren();host.append(el('h3','mastery-heading','Please Try Again'));host.append(el('p','', 'We could not save your lesson at this time. Please try again later or contact your teacher.'));
   const retry=el('button','btn ghost','Retry saving');retry.onclick=()=>finishMastery();host.append(retry);return;}
+ if(activitySession?.id===record.activityId)activitySession.closed=true;
  const key=completionKey(m.lessonId);if(key){try{localStorage.setItem(key,JSON.stringify({...record,synced:true}));}catch(e){}}
  host.replaceChildren();host.append(el('h3','mastery-heading','🎉 Congratulations!'));
  host.append(el('p','', 'You answered all 3 questions correctly. Lesson completed on '+new Date(completedAt).toLocaleString('en-PH',{dateStyle:'long',timeStyle:'short'})+'.'));
@@ -544,14 +565,14 @@ function startLessonSpeech(id){
  const page=document.getElementById(id);if(!page||page.hidden)return;
  clearMastery();stopLessonSpeech();
  const article=page.querySelector('.lesson-grid article.panel');const title=page.querySelector('h2');const body=(article?.innerText||article?.textContent||'').replace(/Try (an activity|the quick quiz).*/gi,'');const txt=((title?.textContent||'Lesson')+'. '+body).replace(/\s+/g,' ').trim();if(!txt)return;
- const token=++speechToken,ctx=studentContext(id);speechLesson=id;speechStarted=false;
+ const token=++speechToken,ctx=studentContext(id);activitySend('Listening',ctx,!!activitySession?.closed||activitySession?.ctx.lessonTitle!==ctx.lessonTitle);speechLesson=id;speechStarted=false;
  const u=new SpeechSynthesisUtterance(txt);u.lang='en-PH';u.rate=1;const v=speechSynthesis.getVoices();const voice=v.find(x=>/^en-PH/i.test(x.lang))||v.find(x=>/^en-/i.test(x.lang));if(voice){u.voice=voice;u.lang=voice.lang;}
  u.onstart=()=>{if(token===speechToken){speechStarted=true;updateReaderUI(id,'playing','🔊 Please listen until the audio finishes. Questions unlock afterward.');}};
  u.onend=()=>{if(token!==speechToken)return;const good=speechStarted&&speechLesson===id&&!page.hidden&&!document.hidden&&JSON.stringify(studentContext(id))===JSON.stringify(ctx);speechLesson=null;speechStarted=false;if(good){if(getCompletion(id)){updateReaderUI(id,'idle','✅ Review finished. This lesson is already completed.');updateCompletion(id);}else{updateReaderUI(id,'idle','✅ Audio finished! Now answer the 3 questions.');beginMastery(id);}}else updateReaderUI(id,'idle','Audio interrupted. No new completion recorded.');};
  u.onerror=()=>{if(token===speechToken){speechLesson=null;speechStarted=false;updateReaderUI(id,'idle','Audio failed. No new completion recorded.');}};
  try{speechSynthesis.speak(u);updateReaderUI(id,'playing','Starting audio…');}catch(e){endSpeechOnly();updateReaderUI(id,'idle','Unable to start audio.');}
 }
-function pauseOrResume(id){if(speechLesson!==id)return;try{if(speechSynthesis.paused){speechSynthesis.resume();updateReaderUI(id,'playing','🔊 Resumed.');}else{speechSynthesis.pause();updateReaderUI(id,'paused','⏸ Paused.');}}catch(e){stopLessonSpeech();}}
+function pauseOrResume(id){if(speechLesson!==id)return;try{if(speechSynthesis.paused){speechSynthesis.resume();activitySend('Listening',studentContext(id));updateReaderUI(id,'playing','🔊 Resumed.');}else{speechSynthesis.pause();activitySend('Audio paused',studentContext(id));updateReaderUI(id,'paused','⏸ Paused.');}}catch(e){stopLessonSpeech();}}
 function onLessonNavigation(name){if(speechLesson&&speechLesson!==name)stopLessonSpeech();if(mastery&&mastery.lessonId!==name)clearMastery();if(document.querySelector('[data-lesson-id="'+name+'"]'))updateCompletion(name);}
 for(const panel of document.querySelectorAll('.reader-shell')){const id=panel.dataset.lessonId;panel.querySelector('[data-reader-action="play"]').addEventListener('click',()=>startLessonSpeech(id));panel.querySelector('[data-reader-action="pause"]').addEventListener('click',()=>pauseOrResume(id));panel.querySelector('[data-reader-action="stop"]').addEventListener('click',stopLessonSpeech);if(!speechAvailable){panel.querySelectorAll('[data-reader-action]').forEach(b=>b.disabled=true);}}
 document.addEventListener('visibilitychange',()=>{if(document.hidden){if(speechLesson)stopLessonSpeech();if(mastery)clearMastery();else stopExplanation();}});
@@ -595,5 +616,6 @@ window.addEventListener('message',event=>{
  progressLoadedStudent=id;refreshLessonBadges();renderProgressSync(location.hash.slice(1));
 });
 
+setupQuiz(10);setupQuiz(11);
 showPage();
 </script></body></html>
