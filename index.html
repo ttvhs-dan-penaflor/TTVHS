@@ -526,7 +526,7 @@ function renderMastery(){
  const seconds=m.timerSeconds??30;const clock=el('div','mastery-heading',seconds?'Time remaining: '+seconds+' seconds':'No time limit');host.append(clock);
  const actions=el('div','mastery-actions');let selected=-1,locked=false;
  const deadline=seconds?Date.now()+seconds*1000:Infinity;const next=el('button','btn',seconds?'Next question ('+seconds+'s)':'Check answer');next.type='button';next.disabled=true;
- const buttons=[];activitySend('Answering Q'+(m.index+1)+'/'+qs.length,m.ctx);
+ const buttons=[];try{activitySend('Answering Q'+(m.index+1)+'/'+qs.length,m.ctx);}catch(e){console.warn('Activity tracking failed',e);}
  order.forEach((originalIndex,displayIndex)=>{
   const button=el('button','mastery-choice',String.fromCharCode(65+displayIndex)+'. '+q.a[originalIndex]);button.type='button';
   button.setAttribute('aria-pressed','false');button.onclick=()=>{if(locked||Date.now()>=deadline||mastery!==m)return;selected=originalIndex;if(!seconds)next.disabled=false;buttons.forEach((btn,k)=>{btn.setAttribute('aria-pressed',String(order[k]===selected));btn.style.background=order[k]===selected?'#cce9ed':'';});};buttons.push(button);host.append(button);
@@ -537,12 +537,13 @@ function renderMastery(){
   m.attempts.push({questionId:'q'+(m.index+1),selectedAnswer:selected<0?'Timeout':String.fromCharCode(65+selected),correct:good,explanationShown:!good,attemptedAt:new Date().toISOString()});
   if(!good)m.wrong++;buttons.forEach((btn,k)=>{btn.disabled=true;btn.style.background='';if(order[k]===q.c)btn.classList.add('correct');else if(order[k]===selected)btn.classList.add('wrong');});
   clock.textContent=seconds?'Time is up':'Answer checked';feedback.hidden=false;feedback.textContent=(good?'✅ Correct! ':selected<0?'Time expired. ':'❌ Not quite. ')+q.why;
-  activitySend('Reviewing Q'+(m.index+1)+'/'+qs.length,m.ctx);
+  // Keep telemetry failures from blocking question navigation.
+  try{activitySend('Reviewing Q'+(m.index+1)+'/'+qs.length,m.ctx);}catch(e){console.warn('Activity tracking failed',e);}
   next.onclick=()=>{if(next.disabled||mastery!==m)return;stopExplanation();if(!good){renderMastery();return;}m.passed++;if(m.index<qs.length-1){m.index++;renderMastery();}else finishMastery();};
   if(good){next.disabled=false;next.textContent=m.index===qs.length-1?'Finish and record →':'Next question →';}
   else {next.disabled=false;next.textContent='Retry question →';const replay=el('button','btn ghost','Listen to explanation');replay.type='button';replay.onclick=()=>sayExplanation(q.why,()=>{},()=>{});actions.append(replay);}
  }
- function tick(){if(mastery!==m||!host.contains(clock)){clearInterval(timer);return;}const remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));clock.textContent='Time remaining: '+remaining+' seconds';clock.style.color=remaining<=5?'#b42318':remaining<=15?'#986000':'#18753c';next.textContent='Next question ('+remaining+'s)';if(!remaining){clearInterval(timer);finishQuestion();}}
+ function tick(){if(locked||mastery!==m||!host.contains(clock)){clearInterval(timer);return;}const remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));clock.textContent='Time remaining: '+remaining+' seconds';clock.style.color=remaining<=5?'#b42318':remaining<=15?'#986000':'#18753c';next.textContent='Next question ('+remaining+'s)';if(!remaining){clearInterval(timer);finishQuestion();}}
  let timer=null;
  if(seconds){timer=setInterval(tick,150);tick();}else{next.onclick=()=>{if(selected>=0)finishQuestion();};}
 }
@@ -673,4 +674,5 @@ const versionLine=el('p','muted','Website v'+HUB_VERSION+' · checking backend�
 
 setupQuiz(10);setupQuiz(11);
 showPage();
-</script></body></html>
+</script><!-- Question timer hotfix 2 (v2.1.0 backend compatible) -->
+</body></html>
