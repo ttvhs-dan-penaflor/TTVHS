@@ -543,7 +543,8 @@ function renderMastery(){
   else {next.disabled=false;next.textContent='Retry question →';const replay=el('button','btn ghost','Listen to explanation');replay.type='button';replay.onclick=()=>sayExplanation(q.why,()=>{},()=>{});actions.append(replay);}
  }
  function tick(){if(mastery!==m||!host.contains(clock)){clearInterval(timer);return;}const remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));clock.textContent='Time remaining: '+remaining+' seconds';clock.style.color=remaining<=5?'#b42318':remaining<=15?'#986000':'#18753c';next.textContent='Next question ('+remaining+'s)';if(!remaining){clearInterval(timer);finishQuestion();}}
- if(seconds){const timer=setInterval(tick,150);tick();}else{next.onclick=()=>{if(selected>=0)finishQuestion();};}
+ let timer=null;
+ if(seconds){timer=setInterval(tick,150);tick();}else{next.onclick=()=>{if(selected>=0)finishQuestion();};}
 }
 
 async function submitToSheet(record){
