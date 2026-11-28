@@ -355,7 +355,7 @@ function hubGateway(){
 window.addEventListener('message',event=>{
  if(!hubGateFrame||!event.source||!event.data||event.data.channel!=='ttvhs-gate'||event.data.nonce!==hubGateway.nonce)return;
  if(event.data.event==='ready'){
-  if(!/^https:\/\/[a-z0-9.-]*googleusercontent\.com$/i.test(event.origin))return;
+  if(!/^https:\/\/(?:[a-z0-9-]+\.)*(?:googleusercontent\.com|google\.com)$/i.test(event.origin))return;
   hubBridgeWindow=event.source;hubBridgeOrigin=event.origin;hubGateReady=true;return;
  }
  if(event.source!==hubBridgeWindow||event.origin!==hubBridgeOrigin)return;
@@ -363,7 +363,7 @@ window.addEventListener('message',event=>{
   const done=hubGatePending.get(event.data.id);if(done){hubGatePending.delete(event.data.id);done(event.data.result);}
  }
 });
-function gateCall(action,request){
+function bridgeCall(action,request){
  hubGateway();return new Promise(resolve=>{
   const id=++hubGateCounter;let attempts=0;
   const send=()=>{
@@ -374,11 +374,19 @@ function gateCall(action,request){
     setTimeout(()=>{if(hubGatePending.has(id)){hubGatePending.delete(id);resolve({ok:false,error:'Recorder response timed out'});}},45000);
     return;
    }
-   if(attempts++>95){resolve({ok:false,error:'Unable to connect to lesson recorder'});return;}
+   if(attempts++>200){if(!hubGateReady){hubGateFrame?.remove();hubGateFrame=null;hubBridgeWindow=null;hubBridgeOrigin=null;}resolve({ok:false,error:'Unable to connect to lesson recorder. Check deployment and retry.'});return;}
    setTimeout(send,150);
   };send();
  });
 }
+
+// Use a confirmed JSON response, never a no-cors write. Uncertain writes are restored, not blindly repeated.
+async function gateCall(action,request){
+ const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),45000);
+ try{const res=await fetch(RECORDING_WEB_APP_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify({type:action==='checkpoint'?'quiz_checkpoint':'quiz_complete',payload:request.payload}),signal:controller.signal});if(!res.ok)throw Error('HTTP '+res.status);const result=await res.json();if(typeof result.ok!=='boolean')throw Error('Invalid recorder response');if(result.error==='Lesson completion must use the confirmed recorder'&&action==='checkpoint'&&request.payload.op==='load')return bridgeCall(action,request);return result;}
+ catch(e){if(action==='checkpoint'&&request.payload.op==='load')return bridgeCall(action,request);return {ok:false,error:'Save not confirmed. Restore saved progress to safely continue.'};}finally{clearTimeout(timer);}
+}
+function showRecordedCompletion(id,rec){const key=completionKey(id);if(key&&rec?.completedAt){try{localStorage.setItem(key,JSON.stringify({...rec,synced:true}));}catch(e){}}const host=masteryHost(id);if(host){host.hidden=false;host.replaceChildren(el('h3','','Already completed — your original score is preserved.'));}updateCompletion(id);refreshLessonBadges();document.querySelector('.page:not([hidden]) .published-lessons')?.refreshLearningMaterials?.();mastery=null;}
 
 let activitySession=null;
 function activitySend(status, ctx, fresh=false){
@@ -499,11 +507,12 @@ function materialTimer(id){const n=Number(document.getElementById(id)?.dataset.t
 async function beginMastery(id){
  const ctx=studentContext(id);if(!ctx)return;
  const host=masteryHost(id);if(!host)return;
+ const existing=getCompletion(id);if(existing?.synced&&existing.completedAt){showRecordedCompletion(id,existing);return;}
  const m={lessonId:id,ctx};mastery=m;host.hidden=false;host.replaceChildren(el('p','','Restoring saved quiz progress…'));
  const result=await gateCall('checkpoint',{payload:{op:'load',ctx}});
  if(mastery!==m)return;
  if(!result.ok){checkpointError(m,result.error,()=>beginMastery(id));return;}
- if(result.completed){host.replaceChildren(el('h3','','Already completed. Your original score is preserved.'));return;}
+ if(result.completed){showRecordedCompletion(id,result.completion);return;}
  Object.assign(m,result.state||{}, {rev:result.rev||0,required:lessonQuestions[id].length});
  if(result.state){if(m.passed===m.required){finishMastery();return;}renderMastery();return;}
  Object.assign(m,{timerSeconds:materialTimer(id),sessionId:crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random(),audioFinishedAt:new Date().toISOString(),index:0,wrong:0,attempts:[],passed:0,phase:'answer',selected:-1,deadline:null,order:null});
@@ -515,7 +524,7 @@ async function saveCheckpoint(m){
  const state={};for(const k of ['timerSeconds','sessionId','audioFinishedAt','index','wrong','attempts','passed','phase','selected','deadline','order'])state[k]=m[k];
  const result=await gateCall('checkpoint',{payload:{op:'save',ctx:m.ctx,rev:m.rev,state}});
  if(mastery!==m)return false;
- if(!result.ok||result.completed){checkpointError(m,result.completed?'This activity is already completed.':result.error);return false;}m.rev=result.rev;return true;
+ if(result.completed){showRecordedCompletion(m.lessonId,result.completion);return false;}if(!result.ok){checkpointError(m,result.error);return false;}m.rev=result.rev;return true;
 }
 function shuffledOptionIndices(count){
  const order=Array.from({length:count},(_,i)=>i);
@@ -623,7 +632,7 @@ const HUB_VERSION='2.1.1';let catalog=null,rosterRun=0;const catalogPending=new 
 const originalMeta={"g7lesson":{"content":"Art in our community\nContemporary art refers to art created by artists working in the present era. It may use painting, photography, digital tools, performance, or a combination of materials.\nEmerging art forms develop as artists experiment with technology, local traditions, and new ways to communicate ideas. Art can tell stories about community life and culture.\nObserve art in the school, home, and community.\nIdentify the message or idea an artwork communicates.\nRecognize that artists may use traditional or digital materials.\nRespect different interpretations of an artwork.","title":"Contemporary and Emerging Arts"},"g10culturelesson":{"content":"Before stocking fingerlings\nFish culture involves raising aquatic organisms under managed conditions. Before stocking fingerlings, farmers need to prepare a safe grow-out facility.\nA suitable facility provides clean water, enough space, and ways to manage water movement. Poor preparation can cause fish stress or losses.\nCheck ponds or tanks for leaks and damaged parts.\nRemove trash, harmful objects, and unwanted materials.\nEnsure there is an adequate, suitable water supply.\nPrepare tools and practice safety before handling fish.\nObserve the facility before placing fingerlings into it.","title":"Preparing a Fish Grow-out Facility"},"g10lesson":{"content":"What is fish capture?\nFish capture is the activity of catching fish from natural bodies of water, such as rivers, lakes, and seas. It is different from fish culture, which raises fish in managed facilities.\nResponsible fish capture considers the safety of fishers, the condition of equipment, and the protection of aquatic resources.\nCheck fishing tools and protective equipment before use.\nConsider weather and water conditions before a fishing activity.\nFollow applicable fishing rules and avoid harmful practices.\nHandle catches carefully and keep the work area clean.","title":"Introduction to Responsible Fish Capture"},"g11lesson":{"content":"Why does water quality matter?\nFish depend on their aquatic environment for oxygen, comfort, and survival. Regular monitoring helps prevent stress and disease.\nTemperature:\ninfluences fish metabolism and activity.\nDissolved oxygen:\nis needed for respiration.\npH:\nmeasures how acidic or basic water is.\nAmmonia:\ncan build up from waste and uneaten feed.\nTry the quick quiz →","title":"Water Quality Management"}};
 const originalMarkup=new Map(Object.keys(originalMeta).map(id=>[id,document.getElementById(id).querySelector('.lesson-grid article.panel').innerHTML]));
 function isStandalone(id){return document.getElementById(id)?.dataset.materialType&&document.getElementById(id).dataset.materialType!=='Lesson';}
-function configureMaterial(page,l){page.dataset.deadline=l.deadline||'';page.dataset.timerSeconds=String(l.timerSeconds??30);page.dataset.materialType=l.materialType||'Lesson';const panel=page.querySelector('.reader-shell');if(!panel)return;panel.querySelector('[data-standalone-start]')?.remove();const standalone=page.dataset.materialType!=='Lesson';panel.querySelectorAll('.reader-controls,[data-reader-message],.reader-shell .notice').forEach(n=>n.hidden=standalone);if(standalone){const b=el('button','btn',l.materialType==='Reviewer'?'Start Reviewer':'Start Activity');b.dataset.standaloneStart='1';b.onclick=()=>{if(!currentStudent||getCompletion(l.id))return;if(mastery?.lessonId===l.id)return;beginMastery(l.id);renderMastery();};panel.prepend(b);const h=panel.querySelector('h3');if(h)h.textContent='Activity questions';const intro=panel.querySelector('p');if(intro)intro.textContent='Read the material above before starting. '+(materialTimer(page.id)?'Each question has '+materialTimer(page.id)+' seconds.':'There is no time limit.');}}
+function configureMaterial(page,l){page.dataset.deadline=l.deadline||'';page.dataset.timerSeconds=String(l.timerSeconds??30);page.dataset.materialType=l.materialType||'Lesson';const panel=page.querySelector('.reader-shell');if(!panel)return;panel.querySelector('[data-standalone-start]')?.remove();const standalone=page.dataset.materialType!=='Lesson';panel.querySelectorAll('.reader-controls,[data-reader-message],.reader-shell .notice').forEach(n=>n.hidden=standalone);if(standalone){const b=el('button','btn',l.materialType==='Reviewer'?'Start Reviewer':'Start Activity');b.dataset.standaloneStart='1';b.onclick=()=>{if(!currentStudent||getCompletion(l.id))return;if(mastery?.lessonId===l.id)return;beginMastery(l.id);};panel.prepend(b);const h=panel.querySelector('h3');if(h)h.textContent='Activity questions';const intro=panel.querySelector('p');if(intro)intro.textContent='Read the material above before starting. '+(materialTimer(page.id)?'Each question has '+materialTimer(page.id)+' seconds.':'There is no time limit.');}}
 function applyOriginalCatalog(x){for(const id of Object.keys(originalMeta)){const lesson=x.lessons.find(l=>l.id===id&&(!currentStudent||l.section==='All'||String(l.section).split(' | ').includes(currentStudent.section)));document.querySelectorAll('a[href="#'+id+'"]').forEach(a=>{a.hidden=!lesson;});if(!lesson)continue;const page=document.getElementById(id);page.querySelector('h2').textContent=[lesson.number==='Original'?'':lesson.number,lesson.title].filter(Boolean).join(' ');configureMaterial(page,lesson);const article=page.querySelector('.lesson-grid article.panel');if(article.dataset.hubContent!==lesson.content||article.dataset.hubImages!==lesson.images){if(lesson.content===originalMeta[id].content&&!lesson.images){article.innerHTML=originalMarkup.get(id);article.style.whiteSpace='';}else{article.replaceChildren(el('p','',lesson.content));article.style.whiteSpace='pre-wrap';for(const url of lesson.images.split(/\s+/).filter(Boolean)){if(!/^https:\/\//.test(url))continue;const img=el('img');img.src=url;img.alt='Lesson image';img.style.maxWidth='100%';article.append(img);}}article.dataset.hubContent=lesson.content;article.dataset.hubImages=lesson.images;}lessonQuestions[id]=lesson.questions;}}
 async function getCatalog(grade='',section=''){const key=grade+'|'+section;if(catalogPending.has(key))return catalogPending.get(key);const req=(async()=>{const res=await fetch(RECORDING_WEB_APP_URL+'?view=catalog&grade='+encodeURIComponent(grade)+'&section='+encodeURIComponent(section)+'&_='+Date.now(),{cache:'no-store'});const x=await res.json();if(!x.ok||x.version!==HUB_VERSION)throw Error(x.error||'Backend version mismatch; deploy Apps Script v'+HUB_VERSION);catalog=x;applyOriginalCatalog(x);return x;})();catalogPending.set(key,req);try{return await req;}finally{catalogPending.delete(key);}}
 function rosterDisplay(grade,section,area){const host=document.getElementById('roster'+(grade==='10'?area:grade)),run=++rosterRun;host.replaceChildren(el('p','muted','Loading student list from Google Sheets…'));const search=document.getElementById('find'+(grade==='10'?area:grade));if(search)search.value='';getCatalog(grade,section).then(x=>{if(run!==rosterRun)return;host.replaceChildren();const rows=x.students.filter(s=>s.grade===grade&&s.section===section);for(const sex of ['Male','Female','Unspecified']){const group=el('section','roster-group'),list=el('div','roster-list'),names=rows.filter(s=>s.sex===sex).sort((a,b)=>a.name.localeCompare(b.name));if(!names.length)continue;group.append(el('h3','',sex+' Students ('+names.length+')'),list);for(const s of names){const b=el('button','student-button',s.name);b.dataset.search=s.name.toLocaleLowerCase();b.onclick=()=>selectStudentWithGate({...s,gender:s.sex.toLowerCase(),area,teacher:grade==='10'?teacherNames.joy:teacherNames.dan,term:selectedTerm},grade==='10'?(area==='culture'?'g10culture':'g10'):'g'+grade);list.append(b);}host.append(group);}if(!rows.length)host.append(el('p','notice','No active students in this section.'));}).catch(e=>{if(run===rosterRun)host.replaceChildren(el('p','notice','Unable to load roster: '+e.message));});}
